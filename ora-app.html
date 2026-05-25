@@ -1,0 +1,2472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ora — финансы</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #F5A623;
+  --gold-pale: #FEF3E2;
+  --ink: #1A1208;
+  --muted: #7A6A52;
+  --border: #EAE0CE;
+  --bg: #FFFDF9;
+  --success: #1D9E75;
+  --success-bg: #E6F7F1;
+  --danger: #D94F3D;
+  --danger-bg: #FDECEA;
+  --info: #2563EB;
+  --info-bg: #EEF4FF;
+  --secondary: #F4F0EA;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: #E8E0D4; }
+body { font-family: 'Manrope', sans-serif; display: flex; justify-content: center; align-items: center; }
+
+.phone-shell {
+  width: 360px; height: 720px;
+  background: var(--bg);
+  border-radius: 36px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+  display: flex; flex-direction: column;
+  position: relative;
+}
+
+/* SCREENS */
+.screen { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+.screen.active { display: flex; }
+
+/* HEADER */
+.hdr { padding: 20px 18px 14px; border-bottom: 0.5px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--bg); }
+.hdr-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+.hdr-back { background: none; border: none; font-size: 24px; color: var(--muted); cursor: pointer; font-family: 'Manrope', sans-serif; line-height: 1; padding: 0 4px; }
+.hdr-right { font-size: 13px; font-weight: 500; }
+
+/* BOTTOM NAV */
+.bnav { display: flex; border-top: 0.5px solid var(--border); flex-shrink: 0; background: var(--bg); }
+.bnav-btn { flex: 1; padding: 10px 0 14px; text-align: center; border: none; background: none; cursor: pointer; font-family: 'Manrope', sans-serif; }
+.bnav-icon { font-size: 22px; display: block; color: #8A7A6A; }
+.bnav-label { font-size: 10px; color: #8A7A6A; display: block; margin-top: 2px; }
+.bnav-btn.active .bnav-icon, .bnav-btn.active .bnav-label { color: var(--gold); }
+
+/* SCROLL CONTENT */
+.scroll { overflow-y: auto; flex: 1; }
+
+/* ===== ГЛАВНАЯ ===== */
+.month-row { display: flex; justify-content: space-between; align-items: center; padding: 18px 18px 14px; flex-shrink: 0; }
+.month-name { font-size: 18px; font-weight: 600; color: var(--ink); }
+.month-nav { display: flex; gap: 6px; }
+.mnav { width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--secondary); border: none; font-size: 18px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.top3 { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+.top3-cell { padding: 14px 12px; border-right: 0.5px solid var(--border); }
+.top3-cell:last-child { border-right: none; }
+.top3-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.top3-val { font-size: 15px; font-weight: 600; }
+.tv-i { color: var(--success); }
+.tv-e { color: var(--danger); }
+.tv-p { color: var(--ink); }
+.tv-p.neg { color: var(--danger); }
+
+.itog-wrap { padding: 14px 14px 0; flex-shrink: 0; }
+.itog { border-radius: var(--radius); padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; transition: background .3s; }
+.itog.pos { background: var(--success-bg); }
+.itog.neg { background: var(--danger-bg); }
+.itog.zer { background: var(--secondary); }
+.itog-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.itog.pos .itog-label { color: var(--success); }
+.itog.neg .itog-label { color: var(--danger); }
+.itog.zer .itog-label { color: var(--muted); }
+.itog-val { font-size: 32px; font-weight: 600; letter-spacing: -1.5px; }
+.itog.pos .itog-val { color: var(--success); }
+.itog.neg .itog-val { color: var(--danger); }
+.itog.zer .itog-val { color: var(--muted); }
+.itog-emoji { font-size: 28px; }
+
+.two-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px; flex-shrink: 0; flex: 1; align-content: start; }
+.big-btn { border: none; border-radius: var(--radius); padding: 22px 8px; cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: transform .15s, opacity .15s; }
+.big-btn:active { transform: scale(0.97); }
+.big-btn.exp { background: var(--danger-bg); color: var(--danger); }
+.big-btn.inc { background: var(--success-bg); color: var(--success); }
+.big-btn-icon { font-size: 28px; }
+
+/* ===== КАТЕГОРИИ ===== */
+.cat-scroll { overflow-y: auto; flex: 1; }
+.cat-parent { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; border-bottom: 0.5px solid var(--border); transition: background .15s; }
+.cat-parent:hover, .cat-parent.open { background: var(--secondary); }
+.cp-ico { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.cp-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--ink); }
+.cp-amt { font-size: 12px; color: var(--muted); margin-right: 4px; }
+.cp-arr { font-size: 16px; color: var(--muted); transition: transform .2s; }
+.cat-parent.open .cp-arr { transform: rotate(90deg); }
+.sub-list { display: none; background: var(--secondary); border-bottom: 0.5px solid var(--border); }
+.sub-list.open { display: block; }
+.sub-item { display: flex; align-items: center; gap: 10px; padding: 12px 18px 12px 66px; cursor: pointer; border-bottom: 0.5px solid var(--border); transition: background .15s; }
+.sub-item:last-child { border-bottom: none; }
+.sub-item:hover { background: var(--bg); }
+.si-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.si-name { flex: 1; font-size: 13px; color: var(--muted); }
+.si-amt { font-size: 12px; color: var(--muted); }
+.si-btn { border: 0.5px solid; border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: 'Manrope', sans-serif; background: transparent; white-space: nowrap; }
+.si-btn.e { border-color: var(--danger); color: var(--danger); }
+.si-btn.i { border-color: var(--success); color: var(--success); }
+
+/* ===== ВВОД ===== */
+.col-hdr { display: flex; padding: 7px 18px; border-bottom: 0.5px solid var(--border); background: var(--secondary); flex-shrink: 0; gap: 8px; }
+.ch-name { flex: 1; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.ch-cnt { width: 76px; text-align: center; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0; }
+.ch-sum { width: 72px; text-align: right; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0; }
+
+.entry-scroll { overflow-y: auto; flex: 1; }
+.entry-row { display: flex; flex-direction: column; gap: 6px; padding: 12px 18px; border-bottom: 0.5px solid var(--border); }
+.entry-row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.entry-row-bot { display: flex; align-items: center; gap: 8px; }
+.er-info { flex: 1; min-width: 0; }
+.er-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.er-price { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.counter { display: flex; align-items: center; border: 0.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; height: 34px; flex-shrink: 0; }
+.cnt-btn { width: 34px; height: 34px; border: none; background: var(--secondary); font-size: 20px; cursor: pointer; font-family: 'Manrope', sans-serif; display: flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; transition: background .1s; }
+.cnt-btn.m:active { background: var(--danger-bg); color: var(--danger); }
+.cnt-btn.p:active { background: var(--success-bg); color: var(--success); }
+.cnt-num { min-width: 40px; padding: 0 8px; text-align: center; font-size: 15px; font-weight: 600; color: var(--ink); border-left: 0.5px solid var(--border); border-right: 0.5px solid var(--border); height: 100%; display: flex; align-items: center; justify-content: center; }
+.er-total { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.er-amt { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.er-amt.exp { color: var(--danger); }
+.er-amt.inc { color: var(--success); }
+.er-del { background: none; border: none; color: #C4B8A4; cursor: pointer; font-size: 18px; font-family: 'Manrope', sans-serif; padding: 0 2px; }
+
+.total-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: var(--secondary); border-top: 0.5px solid var(--border); flex-shrink: 0; }
+.total-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.total-val { font-size: 16px; font-weight: 600; }
+.total-val.exp { color: var(--danger); }
+.total-val.inc { color: var(--success); }
+
+.add-form { padding: 14px 18px; border-top: 0.5px solid var(--border); flex-shrink: 0; background: var(--bg); }
+.ar-name { width: 100%; height: 42px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0 14px; font-size: 14px; background: var(--bg); color: var(--ink); outline: none; font-family: 'Manrope', sans-serif; margin-bottom: 10px; }
+.ar-name:focus { border-color: var(--gold); }
+.ar-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.ar-amt { flex: 1; height: 42px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0 14px; font-size: 16px; font-weight: 600; background: var(--bg); color: var(--ink); outline: none; font-family: 'Manrope', sans-serif; }
+.ar-amt:focus { border-color: var(--gold); }
+.ar-plus { width: 42px; height: 42px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Manrope', sans-serif; }
+.ar-plus.exp { background: var(--danger-bg); color: var(--danger); }
+.ar-plus.inc { background: var(--success-bg); color: var(--success); }
+.sugs { display: flex; gap: 6px; flex-wrap: wrap; }
+.sug { font-size: 12px; padding: 5px 12px; border-radius: 20px; background: var(--secondary); color: var(--muted); cursor: pointer; border: 0.5px solid var(--border); font-family: 'Manrope', sans-serif; }
+.sug:active { background: var(--border); }
+
+/* ===== ОТЧЁТЫ ===== */
+.period-tabs { display: flex; background: var(--secondary); border-radius: var(--radius-sm); padding: 3px; margin: 14px; flex-shrink: 0; }
+.pt { flex: 1; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; border-radius: 7px; cursor: pointer; color: var(--muted); border: none; background: transparent; font-family: 'Manrope', sans-serif; transition: all .15s; }
+.pt.active { background: var(--bg); color: var(--ink); font-weight: 600; }
+.period-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 18px 14px; flex-shrink: 0; }
+.pnav { background: var(--secondary); border: none; border-radius: var(--radius-sm); width: 32px; height: 32px; font-size: 18px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.pnav-lbl { font-size: 13px; font-weight: 600; color: var(--ink); }
+.rep-banner { margin: 0 14px 14px; border-radius: var(--radius); padding: 16px 18px; flex-shrink: 0; }
+.rep-banner.pos { background: var(--success-bg); }
+.rep-banner.neg { background: var(--danger-bg); }
+.rep-banner.zer { background: var(--secondary); }
+.rb-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.rep-banner.pos .rb-label { color: var(--success); }
+.rep-banner.neg .rb-label { color: var(--danger); }
+.rep-banner.zer .rb-label { color: var(--muted); }
+.rb-val { font-size: 28px; font-weight: 600; letter-spacing: -1px; margin-bottom: 12px; }
+.rep-banner.pos .rb-val { color: var(--success); }
+.rep-banner.neg .rb-val { color: var(--danger); }
+.rep-banner.zer .rb-val { color: var(--muted); }
+.rb-row { display: flex; justify-content: space-between; }
+.rb-cl { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+.rb-cv { font-size: 13px; font-weight: 600; }
+.rb-cv.i { color: var(--success); }
+.rb-cv.e { color: var(--danger); }
+.bar-section { padding: 0 14px 14px; flex-shrink: 0; }
+.bar-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 56px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.bar-f { width: 100%; border-radius: 3px 3px 0 0; min-height: 3px; }
+.bar-f.e { background: var(--danger); opacity: .5; }
+.bar-f.i { background: var(--success); opacity: .5; }
+.bar-d { font-size: 9px; color: var(--muted); }
+.cats-rep { padding: 0 14px; }
+.cats-rep-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+.cat-rep-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.crr-ico { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.crr-name { flex: 1; font-size: 12px; color: var(--muted); }
+.crr-bar { width: 60px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.crr-fill { height: 100%; border-radius: 2px; }
+.crr-amt { font-size: 12px; font-weight: 600; color: var(--danger); min-width: 56px; text-align: right; }
+
+/* ===== ИСТОРИЯ ===== */
+.history-hdr { padding: 18px 18px 13px; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+.history-hdr .hdr-title { margin-bottom: 12px; }
+.date-input { width: 100%; height: 42px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0 14px; font-size: 14px; background: var(--bg); color: var(--ink); outline: none; font-family: 'Manrope', sans-serif; margin-bottom: 10px; }
+.date-input:focus { border-color: var(--gold); }
+.name-search-wrap { position: relative; }
+.search-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--muted); pointer-events: none; }
+.name-search { width: 100%; height: 40px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 0 32px 0 36px; font-size: 13px; background: var(--secondary); color: var(--ink); outline: none; font-family: 'Manrope', sans-serif; }
+.name-search:focus { border-color: var(--gold); background: var(--bg); }
+.clr-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; color: var(--muted); cursor: pointer; display: none; }
+.clr-btn.show { display: block; }
+.filter-summary { display: flex; justify-content: space-between; align-items: center; padding: 9px 18px; background: var(--secondary); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+.fs-left { font-size: 11px; color: var(--muted); }
+.fs-right { display: flex; gap: 12px; }
+.fs-i { font-size: 12px; font-weight: 600; color: var(--success); }
+.fs-e { font-size: 12px; font-weight: 600; color: var(--danger); }
+.day-label { padding: 8px 18px; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; background: var(--secondary); position: sticky; top: 0; }
+.hist-row { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 0.5px solid var(--border); }
+.hist-row:active { background: var(--secondary); }
+.hr-ico { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.hr-info { flex: 1; min-width: 0; }
+.hr-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hr-cat { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.hr-amt { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.hr-amt.exp { color: var(--danger); }
+.hr-amt.inc { color: var(--success); }
+.hr-del { background: none; border: none; color: #C4B8A4; cursor: pointer; font-size: 18px; font-family: 'Manrope', sans-serif; }
+.empty-state { text-align: center; padding: 56px 18px; font-size: 13px; color: var(--muted); line-height: 1.9; }
+
+/* ===== НАСТРОЙКИ ===== */
+.profile-block { display: flex; align-items: center; gap: 14px; padding: 18px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+.profile-block:active { background: var(--secondary); }
+.profile-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--info-bg); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--info); flex-shrink: 0; }
+.profile-name { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.profile-email { font-size: 12px; color: var(--muted); }
+.sec-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 14px 18px 6px; }
+.set-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+.set-row:active { background: var(--secondary); }
+.set-ico { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.set-text { flex: 1; }
+.set-label { font-size: 14px; font-weight: 500; color: var(--ink); }
+.set-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.set-arr { font-size: 18px; color: var(--muted); }
+.toggle { width: 38px; height: 22px; border-radius: 11px; background: var(--border); position: relative; cursor: pointer; transition: background .2s; border: none; flex-shrink: 0; }
+.toggle.on { background: var(--success); }
+.toggle::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+.toggle.on::after { left: 18px; }
+.danger-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer; }
+.danger-row:active { background: var(--danger-bg); }
+.danger-row .set-label { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<div class="phone-shell">
+
+  <!-- ===== ГЛАВНАЯ ===== -->
+  <div class="screen active" id="s-home">
+    <div class="month-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14" fill="#FEF3E2"/>
+          <circle cx="16" cy="16" r="10" fill="#F5A623" opacity="0.25"/>
+          <circle cx="16" cy="16" r="6"  fill="#F5A623" opacity="0.55"/>
+          <circle cx="16" cy="16" r="3"  fill="#F5A623"/>
+        </svg>
+        <span style="font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;color:#1A1208;letter-spacing:-0.5px;">Ora</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="month-name" id="month-name" style="font-size:14px;color:#7A6A52;font-weight:500;">Май 2026</div>
+        <div class="month-nav">
+          <button class="mnav" onclick="chMonth(-1)">‹</button>
+          <button class="mnav" onclick="chMonth(1)">›</button>
+        </div>
+      </div>
+    </div>
+    <div class="top3">
+      <div class="top3-cell"><div class="top3-label">Доход</div><div class="top3-val tv-i" id="h-inc">0 ₽</div></div>
+      <div class="top3-cell"><div class="top3-label">Расход</div><div class="top3-val tv-e" id="h-exp">0 ₽</div></div>
+      <div class="top3-cell"><div class="top3-label">Прибыль</div><div class="top3-val tv-p" id="h-profit">0 ₽</div></div>
+    </div>
+    <div class="itog-wrap">
+      <div class="itog zer" id="itog">
+        <div><div class="itog-label">Итог месяца</div><div class="itog-val" id="itog-val">0 ₽</div></div>
+        <div class="itog-emoji" id="itog-emoji"></div>
+      </div>
+    </div>
+    <div class="two-btns">
+      <button class="big-btn exp" onclick="goSec('exp')">
+        <div class="big-btn-icon">↓</div>Расход
+      </button>
+      <button class="big-btn inc" onclick="goSec('inc')">
+        <div class="big-btn-icon">↑</div>Доход
+      </button>
+    </div>
+    <!-- БИЗНЕС БАННЕР -->
+    <div onclick="navTo('s-business',null);setBizTab('home');renderBizDash()" style="margin:0 14px 14px;border-radius:var(--radius);background:linear-gradient(135deg,#F5A623,#E8920F);padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:opacity .15s;" onmousedown="this.style.opacity='.85'" onmouseup="this.style.opacity='1'">
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;color:white;margin-bottom:3px;">Малый и средний бизнес</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.8);">Учёт выручки, расходов и зарплат</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" fill="rgba(255,255,255,0.2)"/>
+          <circle cx="16" cy="16" r="9" fill="rgba(255,255,255,0.3)"/>
+          <circle cx="16" cy="16" r="5" fill="rgba(255,255,255,0.9)"/>
+        </svg>
+        <div style="font-size:18px;color:white;">›</div>
+      </div>
+    </div>
+
+    <!-- ЦЕЛИ И ЛИМИТЫ БАННЕР -->
+    <div onclick="navTo('s-goals',null)" style="margin:0 14px 14px;border-radius:var(--radius);background:linear-gradient(135deg,#2D6A4F,#1a9e6e);padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:opacity .15s;" onmousedown="this.style.opacity='.85'" onmouseup="this.style.opacity='1'">
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;color:white;margin-bottom:3px;">Цели и лимиты</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.8);">Накопления и контроль расходов</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div style="font-size:24px;">🎯</div>
+        <div style="font-size:18px;color:white;">›</div>
+      </div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="bnav">
+      <button class="bnav-btn active" onclick="navTo('s-home',this)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',this);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',this)"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',this)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+  <!-- ===== КАТЕГОРИИ ===== -->
+  <div class="screen" id="s-cats">
+    <div class="hdr">
+      <button class="hdr-back" onclick="navTo('s-home',null)">‹</button>
+      <div class="hdr-title" id="cats-title">Расходы</div>
+      <div class="hdr-right" id="cats-total"></div>
+    </div>
+    <div class="cat-scroll" id="cat-scroll"></div>
+    <div class="bnav">
+      <button class="bnav-btn" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ВВОД ===== -->
+  <div class="screen" id="s-entry">
+    <div class="hdr">
+      <button class="hdr-back" onclick="navTo('s-cats',null);goSec(curType)">‹</button>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px" id="ent-icon">🛒</span>
+          <div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink)" id="ent-name">Продукты</div>
+            <div style="font-size:11px;color:var(--muted)" id="ent-sub">Супермаркет</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="entry-scroll" id="entry-scroll"></div>
+    <div class="total-bar">
+      <div class="total-label">Итого</div>
+      <div class="total-val exp" id="ent-total">0 ₽</div>
+    </div>
+    <div class="add-form">
+      <input class="ar-name" id="ar-name" placeholder="Название" onkeydown="if(event.key==='Enter')document.getElementById('ar-amt').focus()">
+      <div class="ar-row">
+        <input class="ar-amt" id="ar-amt" placeholder="Сумма ₽" type="number" onkeydown="if(event.key==='Enter')addEntry()">
+        <button class="ar-plus exp" id="ar-plus" onclick="addEntry()">+</button>
+      </div>
+      <div class="sugs" id="sugs"></div>
+    </div>
+    <div class="bnav">
+      <button class="bnav-btn" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ОТЧЁТЫ ===== -->
+  <div class="screen" id="s-reports">
+    <div class="hdr"><div class="hdr-title">Отчёты</div></div>
+    <div class="period-tabs">
+      <button class="pt active" onclick="setPeriod('day',this)">День</button>
+      <button class="pt" onclick="setPeriod('week',this)">Неделя</button>
+      <button class="pt" onclick="setPeriod('month',this)">Месяц</button>
+    </div>
+    <div class="period-nav">
+      <button class="pnav" onclick="navPeriod(-1)">‹</button>
+      <div class="pnav-lbl" id="p-lbl">Сегодня</div>
+      <button class="pnav" onclick="navPeriod(1)">›</button>
+    </div>
+    <div class="rep-banner zer" id="rep-banner">
+      <div class="rb-label">Итог</div>
+      <div class="rb-val" id="rb-val">0 ₽</div>
+      <div class="rb-row">
+        <div><div class="rb-cl">Доход</div><div class="rb-cv i" id="rb-i">+0 ₽</div></div>
+        <div><div class="rb-cl">Расход</div><div class="rb-cv e" id="rb-e">−0 ₽</div></div>
+      </div>
+    </div>
+    <div style="padding:0 14px 14px;flex-shrink:0;">
+      <div class="bars" id="rep-bars" style="margin-bottom:8px;height:56px;overflow:hidden;"></div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding-top:6px;border-top:0.5px solid var(--border);" id="bar-lbl">По часам</div>
+    </div>
+    <div class="scroll" style="flex:1;padding:0 14px 8px;">
+
+      <!-- ДОХОДЫ -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Доходы</div>
+      <div id="rep-inc-cats" style="margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--muted);padding:4px 0;">Нет данных</div>
+      </div>
+
+      <!-- РАСХОДЫ -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Расходы</div>
+      <div id="rep-cats">
+        <div style="font-size:12px;color:var(--muted);padding:4px 0;">Нет данных</div>
+      </div>
+
+    </div>
+    <div class="bnav">
+      <button class="bnav-btn" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn active" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+  <!-- ===== ИСТОРИЯ ===== -->
+  <div class="screen" id="s-history">
+    <div class="history-hdr">
+      <div class="hdr-title">История</div>
+      <input class="date-input" id="date-input" type="date" onchange="onDateChange()">
+      <div class="name-search-wrap">
+        <span class="search-ico">🔍</span>
+        <input class="name-search" id="name-search" placeholder="Поиск по названию" oninput="onNameSearch()">
+        <button class="clr-btn" id="clr-btn" onclick="clearSearch()">×</button>
+      </div>
+    </div>
+    <div class="filter-summary" id="filter-summary" style="display:none">
+      <div class="fs-left" id="fs-label">0 записей</div>
+      <div class="fs-right"><div class="fs-i" id="fs-i">+0 ₽</div><div class="fs-e" id="fs-e">−0 ₽</div></div>
+    </div>
+    <div class="scroll" id="hist-results">
+      <div class="empty-state">Выбери дату<br>или введи название</div>
+    </div>
+    <div class="bnav">
+      <button class="bnav-btn" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn active" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+  <!-- ===== НАСТРОЙКИ ===== -->
+  <div class="screen" id="s-settings">
+    <div class="hdr"><div class="hdr-title">Настройки</div></div>
+    <div class="scroll">
+      <div class="profile-block" onclick="openProfile()">
+        <div class="profile-avatar">?</div>
+        <div>
+          <div class="profile-name">Имя не указано</div>
+          <div class="profile-email">Нажми чтобы заполнить</div>
+        </div>
+        <div style="margin-left:auto;font-size:18px;color:var(--muted)">›</div>
+      </div>
+      <!-- ПОДПИСКА -->
+      <div style="margin:0 0 4px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:14px 18px 10px;">Подписка</div>
+
+        <!-- МЕСЯЦ -->
+        <div id="plan-month" onclick="selectPlan('month')" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .15s;">
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="radio-month"></div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:500;color:var(--ink);">Ежемесячный</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Списывается каждый месяц</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:700;color:var(--ink);">99 ₽</div>
+            <div style="font-size:11px;color:var(--muted);">/ месяц</div>
+          </div>
+        </div>
+
+        <!-- ГОД -->
+        <div id="plan-year" onclick="selectPlan('year')" style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .15s;position:relative;">
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--gold);background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="radio-year">
+            <div style="width:8px;height:8px;border-radius:50%;background:white;"></div>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:14px;font-weight:500;color:var(--ink);">Годовой</span>
+              <span style="font-size:10px;font-weight:700;background:var(--gold);color:white;border-radius:20px;padding:2px 8px;">−2 МЕСЯЦА</span>
+            </div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Списывается раз в год</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:700;color:var(--ink);">999 ₽</div>
+            <div style="font-size:11px;color:var(--muted);">/ год</div>
+          </div>
+        </div>
+
+        <!-- КНОПКА -->
+        <div style="padding:14px 18px;">
+          <button onclick="subscribePlan()" style="width:100%;height:48px;background:var(--gold);border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Manrope',sans-serif;transition:opacity .15s;">
+            Оформить подписку
+          </button>
+          <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px;">Первые 30 дней бесплатно · Отмена в любой момент</div>
+        </div>
+      </div>
+
+      <div class="sec-label">Уведомления</div>
+      <div class="set-row">
+        <div class="set-ico" style="background:var(--success-bg)">🔔</div>
+        <div class="set-text">
+          <div class="set-label">Напоминание</div>
+          <div class="set-sub">Вносить расходы каждый день</div>
+        </div>
+        <button class="toggle on" id="notif-toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="sec-label">Данные</div>
+      <div class="set-row">
+        <div class="set-ico" style="background:var(--secondary)">📤</div>
+        <div class="set-text">
+          <div class="set-label">Экспорт в Excel</div>
+          <div class="set-sub">Скачать все данные</div>
+        </div>
+        <div class="set-arr">›</div>
+      </div>
+      <div class="sec-label">Аккаунт</div>
+      <div class="danger-row">
+        <div class="set-ico" style="background:var(--danger-bg)">🗑️</div>
+        <div class="set-text"><div class="set-label">Удалить все данные</div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+    <div class="bnav">
+      <button class="bnav-btn" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn active" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+
+  <!-- ===== ПРОФИЛЬ ===== -->
+  <div class="screen" id="s-profile">
+    <div class="hdr">
+      <button class="hdr-back" onclick="navTo('s-settings',null)">‹</button>
+      <div class="hdr-title">Профиль</div>
+      <button onclick="saveProfile()" style="background:none;border:none;font-size:14px;font-weight:600;color:var(--gold);cursor:pointer;font-family:'Manrope',sans-serif;">Сохранить</button>
+    </div>
+    <div class="scroll" style="padding:20px 18px;">
+
+      <!-- ФОТО -->
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:24px;">
+        <div style="position:relative;margin-bottom:10px;">
+          <div id="prof-avatar-big" style="width:80px;height:80px;border-radius:50%;background:#EEF4FF;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#2563EB;overflow:hidden;border:2px solid var(--border);">
+            <img id="prof-photo" style="width:100%;height:100%;object-fit:cover;display:none;" alt="Фото профиля">
+            <span id="prof-initials">?</span>
+          </div>
+          <label for="photo-input" style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,0.15);">📷</label>
+          <input id="photo-input" type="file" accept="image/*" style="display:none;" onchange="loadPhoto(event)">
+        </div>
+        <div style="font-size:12px;color:var(--muted);">Нажми на 📷 чтобы добавить фото</div>
+      </div>
+
+      <!-- ИМЯ -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Имя</div>
+      <input id="prof-name" type="text" placeholder="Имя"
+        style="width:100%;height:44px;border:0.5px solid var(--border);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0 14px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;border-bottom:none;"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"
+        oninput="updateAvatarPreview()">
+      <input id="prof-lastname" type="text" placeholder="Фамилия"
+        style="width:100%;height:44px;border:0.5px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:0 14px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:16px;"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+
+      <!-- EMAIL -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Email</div>
+      <input id="prof-email" type="email" placeholder="ivan@mail.ru"
+        style="width:100%;height:44px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:16px;"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+
+      <!-- ТЕЛЕФОН -->
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Номер телефона</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <div style="height:44px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:14px;background:var(--secondary);color:var(--muted);display:flex;align-items:center;white-space:nowrap;">🇷🇺 +7</div>
+        <input id="prof-phone" type="tel" placeholder="999 123 45 67"
+          style="flex:1;height:44px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;"
+          onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:20px;">Телефон используется для входа в аккаунт</div>
+
+      <div id="save-msg" style="display:none;background:var(--success-bg);color:var(--success);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-weight:500;text-align:center;">
+        ✓ Данные сохранены
+      </div>
+
+    </div>
+    <div class="bnav">
+      <button class="bnav-btn" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn active" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+
+
+  <!-- ===== ЦЕЛИ И ЛИМИТЫ ===== -->
+  <div class="screen" id="s-goals">
+    <div class="hdr">
+      <button class="hdr-back" onclick="navTo('s-home',null)">‹</button>
+      <div class="hdr-title">Цели и лимиты</div>
+      <div></div>
+    </div>
+
+    <div class="scroll" style="padding:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Мои цели</div>
+        <button onclick="showAddGoalType('goal')" style="background:none;border:none;font-size:22px;color:var(--gold);cursor:pointer;line-height:1;padding:0 2px;">+</button>
+      </div>
+      <div id="goals-list"><div style="text-align:center;padding:28px 16px;font-size:13px;color:var(--muted);line-height:1.8;">Нажми + чтобы добавить цель</div></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Лимиты расходов</div>
+        <button onclick="showAddGoalType('limit')" style="background:none;border:none;font-size:22px;color:var(--gold);cursor:pointer;line-height:1;padding:0 2px;">+</button>
+      </div>
+      <div id="limits-list"><div style="text-align:center;padding:20px 16px;font-size:13px;color:var(--muted);line-height:1.8;">Нажми + чтобы установить лимит</div></div>
+    </div>
+
+    <!-- МОДАЛ ДОБАВЛЕНИЯ -->
+    <div id="add-goal-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:50;align-items:flex-end;justify-content:center;">
+      <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:16px 18px;width:100%;max-height:88%;display:flex;flex-direction:column;">
+      <div style="overflow-y:auto;flex:1;padding-bottom:4px;">
+        <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;"></div>
+
+        <div style="display:flex;background:var(--secondary);border-radius:var(--radius-sm);padding:3px;margin-bottom:16px;">
+          <button id="type-goal-btn" onclick="setGoalType('goal')" style="flex:1;padding:8px;font-size:13px;font-weight:600;border-radius:7px;background:var(--bg);color:var(--ink);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">🎯 Цель</button>
+          <button id="type-limit-btn" onclick="setGoalType('limit')" style="flex:1;padding:8px;font-size:13px;font-weight:500;border-radius:7px;background:transparent;color:var(--muted);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">🚫 Лимит</button>
+        </div>
+
+        <!-- ПОЛЯ ЦЕЛИ -->
+        <div id="goal-fields">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Название цели</div>
+          <input id="goal-name" placeholder="Например: Новый телефон" lang="ru"
+            style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:12px;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+
+          <div style="margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Сумма цели ₽</div>
+            <input id="goal-amt" type="number" placeholder="50 000"
+              style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:15px;font-weight:600;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;"
+              onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" oninput="calcDeadline()">
+          </div>
+          <!-- ПЕРИОД -->
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Как буду откладывать</div>
+          <div style="display:flex;background:var(--secondary);border-radius:var(--radius-sm);padding:3px;margin-bottom:12px;">
+            <button id="period-week-btn" onclick="setPeriodType('week')" style="flex:1;padding:8px;font-size:13px;font-weight:600;border-radius:7px;background:var(--bg);color:var(--ink);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">Еженедельно</button>
+            <button id="period-month-btn" onclick="setPeriodType('month')" style="flex:1;padding:8px;font-size:13px;font-weight:500;border-radius:7px;background:transparent;color:var(--muted);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">Ежемесячно</button>
+          </div>
+
+          <!-- ПОЛЕ НЕДЕЛИ -->
+          <div id="weekly-field" style="margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Сумма в неделю ₽</div>
+            <input id="goal-weekly" type="number" placeholder="2 000"
+              style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:15px;font-weight:600;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;"
+              onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" oninput="calcDeadline()">
+          </div>
+
+          <!-- ПОЛЕ МЕСЯЦА -->
+          <div id="monthly-field" style="margin-bottom:12px;display:none;">
+            <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Сумма в месяц ₽</div>
+            <input id="goal-monthly" type="number" placeholder="5 000"
+              style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:15px;font-weight:600;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;"
+              onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" oninput="calcDeadline()">
+          </div>
+
+          <!-- НАПОМИНАНИЕ -->
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🔔 Напоминание</div>
+          <div id="reminder-options" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="radio" name="reminder" value="none" checked style="accent-color:var(--gold);width:16px;height:16px;">
+              <span style="font-size:13px;color:var(--ink);">Без напоминания</span>
+            </label>
+            <label id="reminder-3d-label" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="radio" name="reminder" value="3days" style="accent-color:var(--gold);width:16px;height:16px;">
+              <span style="font-size:13px;color:var(--ink);" id="reminder-3d-text">Раз в 3 дня — пора откладывать</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="radio" name="reminder" value="weekly" style="accent-color:var(--gold);width:16px;height:16px;">
+              <span style="font-size:13px;color:var(--ink);" id="reminder-week-text">Раз в неделю — итог недели</span>
+            </label>
+            <label id="reminder-month-label" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="radio" name="reminder" value="monthly" style="accent-color:var(--gold);width:16px;height:16px;">
+              <span style="font-size:13px;color:var(--ink);">Раз в месяц — пора откладывать</span>
+            </label>
+          </div>
+
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Срок (до какой даты)</div>
+          <input id="goal-date" type="date"
+            style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:8px;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'" oninput="calcMonthly()">
+
+          <div id="goal-hint" style="font-size:12px;color:var(--success);font-weight:500;margin-bottom:14px;min-height:18px;"></div>
+        </div>
+
+        <!-- ПОЛЯ ЛИМИТА -->
+        <div id="limit-fields" style="display:none;">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Категория расходов</div>
+          <input id="limit-cat" placeholder="Например: Кафе и рестораны" lang="ru"
+            style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:14px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:12px;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+
+          <div style="display:flex;background:var(--secondary);border-radius:var(--radius-sm);padding:3px;margin-bottom:12px;">
+            <button id="lp-day-btn" onclick="setLimitPeriod('day')" style="flex:1;padding:7px;font-size:11px;font-weight:600;border-radius:7px;background:var(--bg);color:var(--ink);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">В день</button>
+            <button id="lp-week-btn" onclick="setLimitPeriod('week')" style="flex:1;padding:7px;font-size:11px;font-weight:500;border-radius:7px;background:transparent;color:var(--muted);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">В неделю</button>
+            <button id="lp-month-btn" onclick="setLimitPeriod('month')" style="flex:1;padding:7px;font-size:11px;font-weight:500;border-radius:7px;background:transparent;color:var(--muted);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">В месяц</button>
+          </div>
+
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;" id="limit-amt-label">Лимит в день ₽</div>
+          <input id="limit-amt" type="number" placeholder="1 000"
+            style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:15px;font-weight:600;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:14px;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+
+          <!-- НАПОМИНАНИЯ ЛИМИТА -->
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🔔 Напоминания</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Отметь нужные — придут только когда что-то изменится</div>
+
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="none" id="lr-none" onchange="toggleNoRemind(this)" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--ink);">Без напоминаний</div>
+                <div style="font-size:11px;color:var(--muted);">Буду сам проверять</div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="daily" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--ink);">🔔 Каждый день</div>
+                <div style="font-size:11px;color:var(--muted);">Сколько потрачено сегодня</div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="3days" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--ink);">🔔 Раз в 3 дня</div>
+                <div style="font-size:11px;color:var(--muted);">Как идут траты по категории</div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="weekly" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--ink);">🔔 Раз в неделю</div>
+                <div style="font-size:11px;color:var(--muted);">Итог недели по категории</div>
+              </div>
+            </label>
+
+            <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 6px;">При достижении порога</div>
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="p70" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--gold);">⚠️ При 70% лимита</div>
+                <div style="font-size:11px;color:var(--muted);">Потрачено уже 70% — будь внимателен</div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="p90" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--danger);">🚨 При 90% лимита</div>
+                <div style="font-size:11px;color:var(--muted);">Лимит почти исчерпан — осталось совсем мало</div>
+              </div>
+            </label>
+
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--secondary);border-radius:var(--radius-sm);cursor:pointer;">
+              <input type="checkbox" name="lremind" value="p100" style="accent-color:var(--gold);width:16px;height:16px;">
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--danger);">❌ При 100% — лимит исчерпан</div>
+                <div style="font-size:11px;color:var(--muted);">Ты вышел за рамки бюджета</div>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+      </div>
+        <button onclick="saveGoal()" style="width:100%;height:46px;background:var(--gold);border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Manrope',sans-serif;margin-bottom:8px;flex-shrink:0;">Добавить</button>
+        <button onclick="hideAddGoal()" style="width:100%;height:38px;background:transparent;border:none;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Manrope',sans-serif;flex-shrink:0;">Отмена</button>
+      </div>
+    </div>
+
+    <!-- МОДАЛ ПОПОЛНЕНИЯ ЦЕЛИ -->
+    <div id="add-savings-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:50;align-items:flex-end;justify-content:center;">
+      <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:16px 18px;width:100%;">
+        <div style="width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 14px;"></div>
+        <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:14px;" id="savings-goal-name">Пополнить цель</div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Сколько откладываешь сегодня ₽</div>
+        <input id="savings-amt" type="number" placeholder="5 000"
+          style="width:100%;height:42px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;font-size:16px;font-weight:600;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--ink);outline:none;margin-bottom:14px;"
+          onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'">
+        <button onclick="addSavings()" style="width:100%;height:46px;background:var(--success);border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;color:white;cursor:pointer;font-family:'Manrope',sans-serif;margin-bottom:8px;">Пополнить</button>
+        <button onclick="hideSavings()" style="width:100%;height:38px;background:transparent;border:none;font-size:13px;color:var(--muted);cursor:pointer;font-family:'Manrope',sans-serif;">Отмена</button>
+      </div>
+    </div>
+
+    <div class="bnav">
+      <button class="bnav-btn active" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+  <!-- ===== БИЗНЕС ===== -->
+  <div class="screen" id="s-business">
+
+    <!-- ШАПКА -->
+    <div style="background:linear-gradient(135deg,#F5A623,#E8920F);padding:16px 16px 14px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:16px;font-weight:700;color:white;">Малый и средний бизнес</div>
+        <button onclick="navTo('s-home',null)" style="background:rgba(255,255,255,0.25);border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:white;cursor:pointer;font-family:'Manrope',sans-serif;">← Личные</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+        <div style="background:rgba(255,255,255,0.2);border-radius:10px;padding:9px 10px;">
+          <div style="font-size:9px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Выручка</div>
+          <div style="font-size:13px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="b-inc">0 ₽</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.2);border-radius:10px;padding:9px 10px;">
+          <div style="font-size:9px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Расходы</div>
+          <div style="font-size:13px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="b-exp">0 ₽</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.2);border-radius:10px;padding:9px 10px;">
+          <div style="font-size:9px;color:rgba(255,255,255,0.8);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Прибыль</div>
+          <div style="font-size:13px;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="b-profit">0 ₽</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- НАВИГАЦИЯ БИЗНЕСА -->
+    <div style="display:flex;border-bottom:0.5px solid var(--border);flex-shrink:0;">
+      <button id="biz-tab-home" onclick="setBizTab('home')" style="flex:1;padding:10px 4px;font-size:12px;font-weight:600;color:var(--gold);border:none;background:none;cursor:pointer;font-family:'Manrope',sans-serif;border-bottom:2px solid var(--gold);">Обзор</button>
+      <button id="biz-tab-reports" onclick="setBizTab('reports')" style="flex:1;padding:10px 4px;font-size:12px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;font-family:'Manrope',sans-serif;border-bottom:2px solid transparent;">Отчёты</button>
+      <button id="biz-tab-history" onclick="setBizTab('history')" style="flex:1;padding:10px 4px;font-size:12px;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;font-family:'Manrope',sans-serif;border-bottom:2px solid transparent;">История</button>
+    </div>
+
+    <!-- ОБЗОР -->
+    <div id="biz-panel-home" style="flex:1;overflow-y:auto;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;flex-shrink:0;">
+        <button onclick="goBusinessSec('exp')" style="border:none;border-radius:var(--radius);padding:22px 8px;cursor:pointer;font-family:'Manrope',sans-serif;font-size:15px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--danger-bg);color:var(--danger);">
+          <span style="font-size:28px;">↓</span>Расходы
+        </button>
+        <button onclick="goBusinessSec('inc')" style="border:none;border-radius:var(--radius);padding:22px 8px;cursor:pointer;font-family:'Manrope',sans-serif;font-size:15px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--success-bg);color:var(--success);">
+          <span style="font-size:28px;">↑</span>Выручка
+        </button>
+      </div>
+      <div style="margin:0 14px 12px;border-radius:var(--radius);padding:16px 18px;transition:background .3s;" id="biz-itog">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;color:var(--muted);">Итог месяца</div>
+        <div style="font-size:28px;font-weight:700;letter-spacing:-1px;color:var(--muted);" id="biz-itog-val">0 ₽</div>
+        <div style="font-size:22px;" id="biz-itog-emoji"></div>
+      </div>
+      <div style="padding:0 14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Все операции</div>
+        <div id="biz-top-inc"></div>
+        <div id="biz-top-cats"></div>
+      </div>
+    </div>
+
+    <!-- ОТЧЁТЫ БИЗНЕСА -->
+    <div id="biz-panel-reports" style="flex:1;overflow-y:auto;display:none;">
+      <div style="display:flex;background:var(--secondary);border-radius:var(--radius-sm);padding:3px;margin:12px;">
+        <button class="pt active" id="biz-pt-day" onclick="setBizPeriod('day',this)" style="flex:1;text-align:center;padding:8px;font-size:12px;font-weight:600;border-radius:7px;background:var(--bg);color:var(--ink);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">День</button>
+        <button class="pt" id="biz-pt-week" onclick="setBizPeriod('week',this)" style="flex:1;text-align:center;padding:8px;font-size:12px;font-weight:500;border-radius:7px;background:transparent;color:var(--muted);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">Неделя</button>
+        <button class="pt" id="biz-pt-month" onclick="setBizPeriod('month',this)" style="flex:1;text-align:center;padding:8px;font-size:12px;font-weight:500;border-radius:7px;background:transparent;color:var(--muted);border:none;cursor:pointer;font-family:'Manrope',sans-serif;">Месяц</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px;">
+        <button onclick="navBizPeriod(-1)" style="background:var(--secondary);border:none;border-radius:var(--radius-sm);width:30px;height:30px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+        <div style="font-size:13px;font-weight:600;color:var(--ink);" id="biz-p-lbl">Сегодня</div>
+        <button onclick="navBizPeriod(1)" style="background:var(--secondary);border:none;border-radius:var(--radius-sm);width:30px;height:30px;font-size:16px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+      </div>
+      <div style="margin:0 12px 12px;border-radius:var(--radius);padding:14px 16px;" id="biz-rep-banner">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;color:var(--muted);">Итог</div>
+        <div style="font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:10px;color:var(--muted);" id="biz-rb-val">0 ₽</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+          <div><div style="color:var(--muted);margin-bottom:2px;">Выручка</div><div style="font-weight:600;color:var(--success);" id="biz-rb-i">+0 ₽</div></div>
+          <div><div style="color:var(--muted);margin-bottom:2px;">Расходы</div><div style="font-weight:600;color:var(--danger);" id="biz-rb-e">−0 ₽</div></div>
+        </div>
+      </div>
+      <div style="padding:0 14px 8px;">
+        <div style="display:flex;align-items:flex-end;gap:3px;height:56px;margin-bottom:8px;overflow:hidden;" id="biz-rep-bars"></div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding-top:6px;border-top:0.5px solid var(--border);" id="biz-bar-lbl">По часам</div>
+      </div>
+      <div style="padding:0 14px 14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">Доходы</div>
+        <div id="biz-rep-inc"></div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:10px 0 8px;">Расходы</div>
+        <div id="biz-rep-exp"></div>
+      </div>
+    </div>
+
+    <!-- ИСТОРИЯ БИЗНЕСА -->
+    <div id="biz-panel-history" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:0.5px solid var(--border);flex-shrink:0;">
+        <input type="date" id="biz-date-input" onchange="renderBizHist()"
+          style="width:100%;height:40px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;font-size:14px;background:var(--bg);color:var(--ink);outline:none;font-family:'Manrope',sans-serif;margin-bottom:8px;">
+        <div style="position:relative;">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted);">🔍</span>
+          <input id="biz-name-search" placeholder="Поиск по названию" oninput="renderBizHist()"
+            style="width:100%;height:38px;border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0 12px 0 34px;font-size:13px;background:var(--secondary);color:var(--ink);outline:none;font-family:'Manrope',sans-serif;">
+        </div>
+      </div>
+      <div style="flex-shrink:0;display:none;justify-content:space-between;align-items:center;padding:8px 16px;background:var(--secondary);border-bottom:0.5px solid var(--border);" id="biz-hist-summary">
+        <div style="font-size:11px;color:var(--muted);" id="biz-hist-label">0 записей</div>
+        <div style="display:flex;gap:10px;">
+          <div style="font-size:12px;font-weight:600;color:var(--success);" id="biz-hist-inc">+0 ₽</div>
+          <div style="font-size:12px;font-weight:600;color:var(--danger);" id="biz-hist-exp">−0 ₽</div>
+        </div>
+      </div>
+      <div style="overflow-y:auto;flex:1;" id="biz-hist-results">
+        <div style="text-align:center;padding:40px 16px;font-size:13px;color:var(--muted);">Выбери дату или введи название</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== БИЗНЕС КАТЕГОРИИ ===== -->
+  <div class="screen" id="s-bcats">
+    <div class="hdr">
+      <button class="hdr-back" onclick="navTo('s-business',null);setBizTab('home');renderBizDash()">‹</button>
+      <div class="hdr-title" id="bcats-title">Расходы бизнеса</div>
+      <div class="hdr-right" id="bcats-total"></div>
+    </div>
+    <div class="cat-scroll" id="bcat-scroll"></div>
+    <div class="bnav">
+      <button class="bnav-btn active" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+
+  <!-- ===== БИЗНЕС ВВОД ===== -->
+  <div class="screen" id="s-biz-entry">
+    <div class="hdr">
+      <button class="hdr-back" onclick="navTo('s-bcats',null);renderBizCats()">‹</button>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:20px" id="biz-ent-icon">💼</span>
+          <div>
+            <div style="font-size:15px;font-weight:600;color:var(--ink)" id="biz-ent-name">Категория</div>
+            <div style="font-size:11px;color:var(--muted)" id="biz-ent-sub">Подкатегория</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="entry-scroll" id="biz-entry-scroll"></div>
+    <div class="total-bar">
+      <div class="total-label">Итого</div>
+      <div class="total-val exp" id="biz-ent-total">0 ₽</div>
+    </div>
+    <div class="add-form">
+      <input class="ar-name" id="biz-ar-name" placeholder="Название" onkeydown="if(event.key==='Enter')document.getElementById('biz-ar-amt').focus()">
+      <div class="ar-row">
+        <input class="ar-amt" id="biz-ar-amt" placeholder="Сумма ₽" type="number" onkeydown="if(event.key==='Enter')addBizEntry()">
+        <button class="ar-plus exp" id="biz-ar-plus" onclick="addBizEntry()">+</button>
+      </div>
+    </div>
+    <div class="bnav">
+      <button class="bnav-btn active" onclick="navTo('s-home',null)"><span class="bnav-icon">⌂</span><span class="bnav-label">Главная</span></button>
+      <button class="bnav-btn" onclick="navTo('s-reports',null);renderReports()"><span class="bnav-icon">▦</span><span class="bnav-label">Отчёты</span></button>
+      <button class="bnav-btn" onclick="navTo('s-history',null);renderHist()"><span class="bnav-icon">◷</span><span class="bnav-label">История</span></button>
+      <button class="bnav-btn" onclick="navTo('s-settings',null)"><span class="bnav-icon">⚙</span><span class="bnav-label">Настройки</span></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== ДАННЫЕ =====
+const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+let curMonth = 4, curYear = 2026;
+let curType = 'exp', curCat = '', curSub = '', curIcon = '';
+let entries = [];
+let openCatEl = null;
+let repPeriod = 'day';
+let histDate = null, histName = '';
+
+const CATS = {
+  exp: [
+    {n:'Продукты',i:'🛒',bg:'#FEF3E2',s:['Супермаркет','Рынок','Доставка еды','Кафе и рестораны']},
+    {n:'Транспорт',i:'🚗',bg:'#EAF3FD',s:['Бензин','Масло и жидкости','Шины и колёса','Ремонт авто','Общественный транспорт','Такси']},
+    {n:'Жильё',i:'🏠',bg:'#EDF7F0',s:['ЖКХ','Аренда','Ремонт и стройка','Инструменты','Мебель и декор']},
+    {n:'Долги',i:'💳',bg:'#FEF0F0',s:['Кредит / ипотека','Долг другу','Рассрочка']},
+    {n:'Отдых',i:'🎉',bg:'#F3EEFE',s:['Путешествия','Кино и концерты','Спорт и фитнес','Хобби']},
+    {n:'Одежда',i:'👕',bg:'#FFF3E8',s:['Одежда','Обувь','Аксессуары']},
+    {n:'Цифровое',i:'📱',bg:'#EAF7F4',s:['Подписки','Приложения','Телефон и интернет','Техника']},
+    {n:'Учёба',i:'📚',bg:'#EEF6FF',s:['Онлайн-курсы','Книги','Репетитор']},
+    {n:'Другое',i:'➕',bg:'#F3F3F3',s:['Своя категория']},
+  ],
+  inc: [
+    {n:'Зарплата',i:'💼',bg:'#EDF7F0',s:['Основная работа','Подработка','Премия']},
+    {n:'Фриланс',i:'💻',bg:'#EEF6FF',s:['Проект','Консультация','Другое']},
+    {n:'Пассивный доход',i:'💰',bg:'#FEF3E2',s:['Аренда','Инвестиции','Проценты']},
+    {n:'Подарок',i:'🎁',bg:'#F3EEFE',s:['Деньги в подарок','Возврат долга']},
+    {n:'Другое',i:'➕',bg:'#F3F3F3',s:['Своя категория']},
+  ]
+};
+
+const CAT_COLORS = {'🛒':'#E07B3F','🚗':'#3B82C4','🏠':'#2D8A5E','💳':'#C44B4B','🎉':'#8B5CF6','👕':'#D97B8B','📱':'#0EA5A0','📚':'#6366F1','💼':'#22A35A','💻':'#3B82C4','💰':'#E07B3F','🎁':'#8B5CF6','➕':'#888'};
+
+// Отчёты используют реальные данные из entries
+
+// ===== УТИЛИТЫ =====
+function fmt(n){ return Math.round(Math.abs(n)).toLocaleString('ru-RU')+' ₽'; }
+function today(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function addDays(n){
+  const d = new Date();
+  d.setDate(d.getDate()+n);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+function fmtDate(str){
+  const d=new Date(str+'T00:00:00');
+  const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const ds=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const t=today(), y=addDays(-1);
+  if(str===t) return 'Сегодня, '+d.getDate()+' '+ms[d.getMonth()];
+  if(str===y) return 'Вчера, '+d.getDate()+' '+ms[d.getMonth()];
+  return ds[d.getDay()]+', '+d.getDate()+' '+ms[d.getMonth()];
+}
+
+// ===== НАВИГАЦИЯ =====
+function navTo(id, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== ГЛАВНАЯ =====
+function chMonth(d){
+  curMonth+=d;
+  if(curMonth>11){curMonth=0;curYear++;}
+  if(curMonth<0){curMonth=11;curYear--;}
+  document.getElementById('month-name').textContent=MONTHS[curMonth]+' '+curYear;
+}
+
+function recalc(){
+  const inc=entries.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0);
+  const exp=entries.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0);
+  const p=inc-exp;
+  document.getElementById('h-inc').textContent='+'+fmt(inc);
+  document.getElementById('h-exp').textContent='−'+fmt(exp);
+  const pe=document.getElementById('h-profit');
+  pe.textContent=(p>=0?'+':'−')+fmt(p);
+  pe.className='top3-val tv-p'+(p<0?' neg':'');
+  const ib=document.getElementById('itog');
+  const iv=document.getElementById('itog-val');
+  const ie=document.getElementById('itog-emoji');
+  if(p>0){ib.className='itog pos';iv.textContent='+'+fmt(p);ie.textContent='😊';}
+  else if(p<0){ib.className='itog neg';iv.textContent='−'+fmt(p);ie.textContent='⚠️';}
+  else{ib.className='itog zer';iv.textContent='0 ₽';ie.textContent='';}
+}
+
+// ===== КАТЕГОРИИ =====
+function goSec(type){
+  curType=type; openCatEl=null;
+  document.getElementById('cats-title').textContent=type==='exp'?'Расходы':'Доходы';
+  const tot=entries.filter(e=>e.type===type).reduce((s,e)=>s+e.price*e.count,0);
+  const ct=document.getElementById('cats-total');
+  ct.textContent=tot>0?(type==='exp'?'−':'+')+fmt(tot):'';
+  ct.style.color=type==='exp'?'var(--danger)':'var(--success)';
+  const list=CATS[type];
+  document.getElementById('cat-scroll').innerHTML=list.map((cat,ci)=>`
+    <div>
+      <div class="cat-parent" id="cp-${ci}" onclick="toggleCat(this,${ci})" data-cat="${cat.n}">
+        <div class="cp-ico" style="background:${cat.bg}">${cat.i}</div>
+        <div class="cp-name">${cat.n}</div>
+        <div class="cp-amt" id="ca-${ci}"></div>
+        <div class="cp-arr">›</div>
+      </div>
+      <div class="sub-list" id="sl-${ci}">
+        ${cat.s.map((sub,si)=>`
+          <div class="sub-item" onclick="goEntry(${ci},${si})">
+            <div class="si-dot"></div>
+            <div class="si-name">${sub}</div>
+            <div class="si-amt" id="sa-${ci}-${si}"></div>
+            <button class="si-btn ${type==='exp'?'e':'i'}" onclick="event.stopPropagation();goEntry(${ci},${si})">+ добавить</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  updAmts();
+  navTo('s-cats',null);
+}
+
+function updAmts(){
+  CATS[curType].forEach((cat,ci)=>{
+    let tot=0;
+    cat.s.forEach((sub,si)=>{
+      const s=entries.filter(e=>e.type===curType&&e.cat===cat.n&&e.sub===sub).reduce((a,e)=>a+e.price*e.count,0);
+      const el=document.getElementById('sa-'+ci+'-'+si);
+      if(el)el.textContent=s>0?(curType==='exp'?'−':'+')+fmt(s):'';
+      tot+=s;
+    });
+    const ce=document.getElementById('ca-'+ci);
+    if(ce)ce.textContent=tot>0?(curType==='exp'?'−':'+')+fmt(tot):'';
+  });
+}
+
+function toggleCat(el,ci){
+  if(openCatEl&&openCatEl!==el){openCatEl.classList.remove('open');openCatEl.nextElementSibling.classList.remove('open');}
+  el.classList.toggle('open');
+  document.getElementById('sl-'+ci).classList.toggle('open');
+  openCatEl=el.classList.contains('open')?el:null;
+}
+
+// ===== ВВОД =====
+function goEntry(ci,si){
+  const cat=CATS[curType][ci];
+  curCat=cat.n; curSub=cat.s[si]; curIcon=cat.i;
+  document.getElementById('ent-icon').textContent=cat.i;
+  document.getElementById('ent-name').textContent=cat.n;
+  document.getElementById('ent-sub').textContent=curSub;
+  document.getElementById('ar-plus').className='ar-plus '+(curType==='exp'?'exp':'inc');
+  renderEntries();
+  navTo('s-entry',null);
+  setTimeout(()=>document.getElementById('ar-name').focus(),100);
+}
+
+function renderEntries(){
+  const list=entries.filter(e=>e.type===curType&&e.cat===curCat&&e.sub===curSub);
+  const el=document.getElementById('entry-scroll');
+  el.innerHTML=list.length?list.map(e=>`
+    <div class="entry-row">
+      <div class="er-info">
+        <div class="er-name">${e.name}</div>
+        <div class="er-price">${fmt(e.price)} / раз</div>
+      </div>
+      <div class="counter">
+        <button class="cnt-btn m" onclick="dec('${e.id}')">−</button>
+        <div class="cnt-num">${e.count}</div>
+        <button class="cnt-btn p" onclick="inc('${e.id}')">+</button>
+      </div>
+      <div class="er-total">
+        <div class="er-amt ${curType}">${curType==='exp'?'−':'+'}${fmt(e.price*e.count)}</div>
+        <button class="er-del" onclick="delEntry('${e.id}')">×</button>
+      </div>
+    </div>
+  `).join(''):'';
+  const tot=list.reduce((s,e)=>s+e.price*e.count,0);
+  const tv=document.getElementById('ent-total');
+  tv.textContent=(curType==='exp'?'−':'+')+fmt(tot);
+  tv.className='total-val '+(curType==='exp'?'exp':'inc');
+  renderSugs();
+}
+
+const PRESETS={'Общественный транспорт':['Метро','Автобус','Такси','Электричка','Маршрутка'],'Супермаркет':['Продукты','Хлеб','Молоко','Мясо'],'Кафе и рестораны':['Кофе','Обед','Ужин']};
+function renderSugs(){
+  const used=[...new Set(entries.filter(e=>e.cat===curCat&&e.sub===curSub).map(e=>e.name))];
+  const pr=PRESETS[curSub]||[];
+  const all=[...new Set([...used,...pr])].slice(0,5);
+  document.getElementById('sugs').innerHTML=all.map(s=>`<div class="sug" onclick="quickFill('${s}')">${s}</div>`).join('');
+}
+
+function quickFill(name){
+  document.getElementById('ar-name').value=name;
+  const ex=entries.find(e=>e.cat===curCat&&e.sub===curSub&&e.name===name);
+  if(ex) document.getElementById('ar-amt').value=ex.price;
+  document.getElementById('ar-amt').focus();
+}
+
+function addEntry(){
+  const name=document.getElementById('ar-name').value.trim();
+  const price=parseFloat(document.getElementById('ar-amt').value);
+  if(!name||!price||price<=0)return;
+  const ex=entries.find(e=>e.type===curType&&e.cat===curCat&&e.sub===curSub&&e.name===name);
+  if(ex){ex.count++;}
+  else{entries.push({id:Date.now()+''+Math.random(),name,price,count:1,type:curType,cat:curCat,sub:curSub,icon:curIcon,date:today()});}
+  document.getElementById('ar-name').value='';
+  document.getElementById('ar-amt').value='';
+  document.getElementById('ar-name').focus();
+  renderEntries(); recalc(); updAmts();
+}
+
+function inc(id){const e=entries.find(e=>e.id===id);if(e){e.count++;renderEntries();recalc();updAmts();}}
+function dec(id){
+  const e=entries.find(e=>e.id===id);if(!e)return;
+  e.count--;
+  if(e.count<=0)entries=entries.filter(e=>e.id!==id);
+  renderEntries();recalc();updAmts();
+}
+function delEntry(id){entries=entries.filter(e=>e.id!==id);renderEntries();recalc();updAmts();}
+
+// ===== ОТЧЁТЫ =====
+// Базовая дата отчётов
+let repDate = new Date();
+repDate.setHours(12,0,0,0); // полдень чтобы избежать проблем с часовым поясом
+
+function getRepLabel(){
+  const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const days=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const now = new Date();
+  if(repPeriod==='day'){
+    const isToday = repDate.toDateString()===now.toDateString();
+    const isYest = new Date(now-86400000).toDateString()===repDate.toDateString();
+    if(isToday) return 'Сегодня, '+repDate.getDate()+' '+ms[repDate.getMonth()];
+    if(isYest) return 'Вчера, '+repDate.getDate()+' '+ms[repDate.getMonth()];
+    return days[repDate.getDay()]+', '+repDate.getDate()+' '+ms[repDate.getMonth()]+' '+repDate.getFullYear();
+  }
+  if(repPeriod==='week'){
+    const mon = new Date(repDate);
+    mon.setDate(repDate.getDate()-((repDate.getDay()+6)%7));
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    const sameMonth = mon.getMonth()===sun.getMonth();
+    const sameYear = mon.getFullYear()===sun.getFullYear();
+    const monStr = mon.getDate()+' '+ms[mon.getMonth()];
+    const sunStr = sun.getDate()+' '+ms[sun.getMonth()]+(sameYear?'':' '+sun.getFullYear());
+    return monStr+' – '+sunStr+(sameYear?' '+mon.getFullYear():'');
+  }
+  if(repPeriod==='month'){
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    return mNames[repDate.getMonth()]+' '+repDate.getFullYear();
+  }
+}
+
+function getRepEntries(){
+  const d = repDate;
+  if(repPeriod==='day'){
+    const ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    return entries.filter(e=>e.date===ds);
+  }
+  if(repPeriod==='week'){
+    const mon = new Date(d);
+    mon.setDate(d.getDate()-((d.getDay()+6)%7));
+    mon.setHours(0,0,0,0);
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    return entries.filter(e=>{ const ed=new Date(e.date+'T00:00:00'); return ed>=mon&&ed<=sun; });
+  }
+  if(repPeriod==='month'){
+    return entries.filter(e=>{
+      const ed=new Date(e.date+'T00:00:00');
+      return ed.getMonth()===d.getMonth()&&ed.getFullYear()===d.getFullYear();
+    });
+  }
+  return [];
+}
+
+function getBarData(){
+  const list = getRepEntries();
+  if(repPeriod==='day'){
+    // полные сутки 0:00 - 23:00 по 2 часа
+    const lbls=[]; const exp=[]; const inc=[];
+    for(let h=0;h<=22;h+=2){
+      lbls.push(h===0?'00:00':h+':00');
+      const inRange = list.filter(e=>{
+        const hr = parseInt((e.time||'12:00').split(':')[0]);
+        return hr>=h && hr<h+2;
+      });
+      exp.push(inRange.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0));
+      inc.push(inRange.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+    }
+    return {lbls,exp,inc};
+  }
+  if(repPeriod==='week'){
+    const dayNames=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    const mon = new Date(repDate);
+    mon.setDate(repDate.getDate()-((repDate.getDay()+6)%7));
+    mon.setHours(0,0,0,0);
+    const exp=[],inc=[],lbls=[];
+    for(let i=0;i<7;i++){
+      const day=new Date(mon); day.setDate(mon.getDate()+i);
+      const ds=day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+      const dayE=list.filter(e=>e.date===ds);
+      exp.push(dayE.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0));
+      inc.push(dayE.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+      lbls.push(dayNames[i]);
+    }
+    return {lbls,exp,inc};
+  }
+  if(repPeriod==='month'){
+    // по неделям месяца
+    const year=repDate.getFullYear(), month=repDate.getMonth();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const weeks=Math.ceil(daysInMonth/7);
+    const exp=[],inc=[],lbls=[];
+    for(let w=0;w<weeks;w++){
+      const from=w*7+1, to=Math.min((w+1)*7,daysInMonth);
+      lbls.push(from+'–'+to);
+      const wE=list.filter(e=>{
+        const d=parseInt(e.date.split('-')[2]);
+        return d>=from&&d<=to;
+      });
+      exp.push(wE.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0));
+      inc.push(wE.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+    }
+    return {lbls,exp,inc};
+  }
+  return {lbls:[],exp:[],inc:[]};
+}
+
+function renderReports(){
+  document.getElementById('p-lbl').textContent = getRepLabel();
+
+  const list = getRepEntries();
+  const inc=list.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0);
+  const exp=list.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0);
+  const p=inc-exp;
+
+  const rb=document.getElementById('rep-banner');
+  const rv=document.getElementById('rb-val');
+  if(p>0){rb.className='rep-banner pos';rv.textContent='+'+fmt(p);}
+  else if(p<0){rb.className='rep-banner neg';rv.textContent='−'+fmt(p);}
+  else{rb.className='rep-banner zer';rv.textContent='0 ₽';}
+  document.getElementById('rb-i').textContent='+'+fmt(inc);
+  document.getElementById('rb-e').textContent='−'+fmt(exp);
+  
+
+  const bl={day:'По часам',week:'По дням недели',month:'По неделям месяца'};
+  document.getElementById('bar-lbl').textContent=bl[repPeriod];
+
+  const {lbls,exp:bExp,inc:bInc}=getBarData();
+  const maxV=Math.max(...bExp,...bInc,1);
+  // Вычисляем даты для каждого столбика чтобы кликать
+  const barDates = getBarDates(lbls);
+
+  document.getElementById('rep-bars').innerHTML=lbls.map((l,i)=>{
+    const MAX_H = 48;
+    const eH = bExp[i]>0 ? Math.max(Math.round(bExp[i]/maxV*MAX_H),4) : 0;
+    const iH = bInc[i]>0 ? Math.max(Math.round(bInc[i]/maxV*MAX_H),4) : 0;
+    const hasData = bExp[i]>0 || bInc[i]>0;
+    const dateStr = barDates[i]||'';
+    const clickable = hasData ? `onclick="goToHistoryDate('${dateStr}')"` : '';
+    return `<div class="bar-col" ${clickable} style="${hasData?'cursor:pointer;':''}">
+      <div style="display:flex;align-items:flex-end;gap:1px;height:${MAX_H}px;width:100%;justify-content:center;">
+        ${iH>0?`<div style="flex:1;height:${iH}px;background:#1D9E75;opacity:.7;border-radius:3px 3px 0 0;"></div>`:`<div style="flex:1;"></div>`}
+        ${eH>0?`<div style="flex:1;height:${eH}px;background:#D94F3D;opacity:.6;border-radius:3px 3px 0 0;"></div>`:`<div style="flex:1;"></div>`}
+      </div>
+      <div class="bar-d" style="color:${hasData?'var(--ink)':'var(--muted)'};margin-top:3px;">${l}</div>
+    </div>`;
+  }).join('');
+
+  // ДОХОДЫ по категориям
+  const byInc={};
+  list.filter(e=>e.type==='inc').forEach(e=>{
+    if(!byInc[e.cat])byInc[e.cat]={icon:e.icon,total:0};
+    byInc[e.cat].total+=e.price*e.count;
+  });
+  const sortedInc=Object.entries(byInc).sort((a,b)=>b[1].total-a[1].total);
+  const maxI=Math.max(...sortedInc.map(([,v])=>v.total),1);
+  const riEl=document.getElementById('rep-inc-cats');
+  if(riEl) riEl.innerHTML=sortedInc.length?sortedInc.map(([cat,v])=>`
+    <div class="cat-rep-row" style="cursor:pointer;" onclick="goFromReport('inc','${cat}')">
+      <div class="crr-ico" style="background:#22A35A22">${v.icon}</div>
+      <div class="crr-name">${cat}</div>
+      <div class="crr-bar"><div class="crr-fill" style="width:${Math.round(v.total/maxI*100)}%;background:#1D9E75"></div></div>
+      <div class="crr-amt" style="color:#1D9E75;">+${fmt(v.total)}</div>
+    </div>
+  `).join(''):'<div style="font-size:12px;color:#7A6A52;padding:4px 0;">Нет данных</div>';
+
+  // РАСХОДЫ по категориям
+  const byCat={};
+  list.filter(e=>e.type==='exp').forEach(e=>{
+    if(!byCat[e.cat])byCat[e.cat]={icon:e.icon,total:0};
+    byCat[e.cat].total+=e.price*e.count;
+  });
+  const sorted=Object.entries(byCat).sort((a,b)=>b[1].total-a[1].total);
+  const maxC=Math.max(...sorted.map(([,v])=>v.total),1);
+  const rcEl=document.getElementById('rep-cats');
+  if(rcEl) rcEl.innerHTML=sorted.length?sorted.map(([cat,v])=>`
+    <div class="cat-rep-row" style="cursor:pointer;" onclick="goFromReport('exp','${cat}')">
+      <div class="crr-ico" style="background:${CAT_COLORS[v.icon]||'#888'}22">${v.icon}</div>
+      <div class="crr-name">${cat}</div>
+      <div class="crr-bar"><div class="crr-fill" style="width:${Math.round(v.total/maxC*100)}%;background:${CAT_COLORS[v.icon]||'#888'}"></div></div>
+      <div class="crr-amt">−${fmt(v.total)}</div>
+    </div>
+  `).join(''):'<div style="font-size:12px;color:#7A6A52;padding:4px 0;">Нет данных</div>';
+
+  // Блокируем кнопку вперёд если уже текущий период
+  const now=new Date();
+  const fwd=document.querySelector('.pnav:last-child');
+  if(repPeriod==='day'){
+    fwd.style.opacity=repDate.toDateString()===now.toDateString()?'0.3':'1';
+    fwd.style.pointerEvents=repDate.toDateString()===now.toDateString()?'none':'auto';
+  } else if(repPeriod==='week'){
+    const mon=new Date(now); mon.setDate(now.getDate()-((now.getDay()+6)%7)); mon.setHours(0,0,0,0);
+    const rMon=new Date(repDate); rMon.setDate(repDate.getDate()-((repDate.getDay()+6)%7)); rMon.setHours(0,0,0,0);
+    const atCur=rMon.toDateString()===mon.toDateString();
+    fwd.style.opacity=atCur?'0.3':'1'; fwd.style.pointerEvents=atCur?'none':'auto';
+  } else {
+    const atCur=repDate.getMonth()===now.getMonth()&&repDate.getFullYear()===now.getFullYear();
+    fwd.style.opacity=atCur?'0.3':'1'; fwd.style.pointerEvents=atCur?'none':'auto';
+  }
+}
+
+function goFromReport(type, catName){
+  // Переходим в категорию из отчёта
+  curType = type;
+  openCatEl = null;
+  goSec(type);
+  // Находим и раскрываем нужную категорию
+  setTimeout(()=>{
+    const catList = CATS[type];
+    const ci = catList.findIndex(c=>c.n===catName);
+    if(ci === -1) return;
+    const catEl = document.getElementById('cp-'+ci);
+    if(catEl && !catEl.classList.contains('open')){
+      toggleCat(catEl, ci);
+    }
+    if(catEl) catEl.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 150);
+}
+
+function getBarDates(lbls){
+  // Возвращает массив дат для каждого столбика
+  const dates = [];
+  if(repPeriod==='day'){
+    // все столбики — один день
+    const ds = repDate.toISOString().split('T')[0];
+    lbls.forEach(()=>dates.push(ds));
+  } else if(repPeriod==='week'){
+    const mon = new Date(repDate);
+    mon.setDate(repDate.getDate()-((repDate.getDay()+6)%7));
+    mon.setHours(0,0,0,0);
+    lbls.forEach((_,i)=>{
+      const d = new Date(mon);
+      d.setDate(mon.getDate()+i);
+      dates.push(d.toISOString().split('T')[0]);
+    });
+  } else if(repPeriod==='month'){
+    const year=repDate.getFullYear(), month=repDate.getMonth();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const weeks=Math.ceil(daysInMonth/7);
+    for(let w=0;w<weeks;w++){
+      const from=w*7+1;
+      const d = new Date(year,month,from);
+      dates.push(d.toISOString().split('T')[0]);
+    }
+  }
+  return dates;
+}
+
+function goToHistoryDate(dateStr){
+  if(!dateStr) return;
+  // Переходим в историю с выбранной датой
+  histDate = dateStr;
+  document.getElementById('date-input').value = dateStr;
+  renderHist();
+  // Переключаем на экран истории
+  navTo('s-history', null);
+  // Обновляем активную кнопку нижней навигации
+  document.querySelectorAll('#s-history .bnav-btn').forEach(b=>b.classList.remove('active'));
+  const histBtns = document.querySelectorAll('#s-history .bnav-btn');
+  histBtns.forEach(b=>{ if(b.querySelector('.bnav-label')&&b.querySelector('.bnav-label').textContent==='История') b.classList.add('active'); });
+}
+
+function setPeriod(p,btn){
+  repPeriod=p;
+  repDate=new Date();
+  document.querySelectorAll('.pt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReports();
+}
+
+function navPeriod(d){
+  const nd=new Date(repDate);
+  if(repPeriod==='day') nd.setDate(nd.getDate()+d);
+  else if(repPeriod==='week') nd.setDate(nd.getDate()+d*7);
+  else nd.setMonth(nd.getMonth()+d);
+  // не пускаем в будущее
+  const now=new Date();
+  if(nd>now && d>0) return;
+  repDate=nd;
+  renderReports();
+}
+
+// ===== ИСТОРИЯ =====
+function getHistFiltered(){
+  let list=[...entries];
+  if(histDate) list=list.filter(e=>e.date===histDate);
+  if(histName) list=list.filter(e=>e.name.toLowerCase().includes(histName.toLowerCase()));
+  return list;
+}
+
+function renderHist(){
+  const list=getHistFiltered();
+  const re=document.getElementById('hist-results');
+  const su=document.getElementById('filter-summary');
+  if(!list.length){
+    re.innerHTML='<div class="empty-state">'+(histDate||histName?'Ничего не найдено.<br>Попробуй другую дату или название.':'Выбери дату<br>или введи название')+'</div>';
+    su.style.display='none'; return;
+  }
+  const inc=list.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0);
+  const exp=list.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0);
+  su.style.display='flex';
+  document.getElementById('fs-label').textContent=list.length+' '+(list.length===1?'запись':list.length<5?'записи':'записей');
+  document.getElementById('fs-i').textContent='+'+fmt(inc);
+  document.getElementById('fs-e').textContent='−'+fmt(exp);
+  const byDate={};
+  list.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
+  re.innerHTML=Object.keys(byDate).sort((a,b)=>b.localeCompare(a)).map(date=>`
+    <div class="day-label">${fmtDate(date)}</div>
+    ${byDate[date].map(e=>`
+      <div class="hist-row" onclick="goToEntry('${e.type}','${e.cat}','${e.sub}','${e.icon}')" style="cursor:pointer;">
+        <div class="hr-ico" style="background:${CAT_COLORS[e.icon]||'#888'}22">${e.icon}</div>
+        <div class="hr-info">
+          <div class="hr-name">${e.name}</div>
+          <div class="hr-cat">${e.cat} · ${e.sub} <span style="font-size:10px;color:var(--muted);">— открыть</span></div>
+        </div>
+        <div class="hr-amt ${e.type}">${e.type==='exp'?'−':'+'}${fmt(e.price*e.count)}</div>
+        <button class="hr-del" onclick="delHist('${e.id}')">×</button>
+      </div>
+    `).join('')}
+  `).join('');
+}
+
+function goToEntry(type, cat, sub, icon){
+  // Находим индексы категории и подкатегории
+  const catList = CATS[type];
+  const ci = catList.findIndex(c=>c.n===cat);
+  if(ci===-1){
+    // Категория не найдена — просто открываем список категорий
+    goSec(type);
+    return;
+  }
+  const si = catList[ci].s.indexOf(sub);
+
+  // Устанавливаем текущий тип
+  curType = type;
+  curCat = cat;
+  curSub = si!==-1 ? sub : catList[ci].s[0];
+  curIcon = icon || catList[ci].i;
+
+  document.getElementById('ent-icon').textContent = curIcon;
+  document.getElementById('ent-name').textContent = cat;
+  document.getElementById('ent-sub').textContent = curSub;
+  document.getElementById('ar-plus').className = 'ar-plus '+(type==='exp'?'exp':'inc');
+
+  renderEntries();
+  navTo('s-entry', null);
+  setTimeout(()=>document.getElementById('ar-name').focus(), 100);
+}
+
+function onDateChange(){histDate=document.getElementById('date-input').value||null;renderHist();}
+function onNameSearch(){histName=document.getElementById('name-search').value;document.getElementById('clr-btn').className='clr-btn'+(histName?' show':'');renderHist();}
+function clearSearch(){histName='';document.getElementById('name-search').value='';document.getElementById('clr-btn').className='clr-btn';renderHist();}
+function delHist(id){entries=entries.filter(e=>e.id!==id);recalc();renderHist();}
+
+
+// ===== ПРОФИЛЬ =====
+function openProfile(){
+  document.getElementById('prof-name').value = localStorage.getItem('ora-name')||'';
+  document.getElementById('prof-lastname').value = localStorage.getItem('ora-lastname')||'';
+  document.getElementById('prof-email').value = localStorage.getItem('ora-email')||'';
+  document.getElementById('prof-phone').value = localStorage.getItem('ora-phone')||'';
+  const photo = localStorage.getItem('ora-photo');
+  if(photo){
+    document.getElementById('prof-photo').src = photo;
+    document.getElementById('prof-photo').style.display = 'block';
+    document.getElementById('prof-initials').style.display = 'none';
+  }
+  updateAvatarPreview();
+  navTo('s-profile', null);
+}
+
+function loadPhoto(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const src = ev.target.result;
+    localStorage.setItem('ora-photo', src);
+    document.getElementById('prof-photo').src = src;
+    document.getElementById('prof-photo').style.display = 'block';
+    document.getElementById('prof-initials').style.display = 'none';
+    // update settings avatar too
+    const av = document.querySelector('.profile-avatar');
+    if(av){ av.innerHTML = '<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="фото">'; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateAvatarPreview(){
+  const name = document.getElementById('prof-name').value.trim();
+  const photo = localStorage.getItem('ora-photo');
+  if(!photo){
+    document.getElementById('prof-initials').textContent = name ? name[0].toUpperCase() : '?';
+  }
+}
+
+function saveProfile(){
+  const name = document.getElementById('prof-name').value.trim();
+  const lastname = document.getElementById('prof-lastname').value.trim();
+  const email = document.getElementById('prof-email').value.trim();
+  const phone = document.getElementById('prof-phone').value.trim();
+  if(name) localStorage.setItem('ora-name', name);
+  if(lastname) localStorage.setItem('ora-lastname', lastname);
+  if(email) localStorage.setItem('ora-email', email);
+  if(phone) localStorage.setItem('ora-phone', phone);
+  updateProfileDisplay();
+  const msg = document.getElementById('save-msg');
+  msg.style.display = 'block';
+  setTimeout(()=>{ msg.style.display='none'; navTo('s-settings',null); }, 1200);
+}
+
+function updateProfileDisplay(){
+  const name = localStorage.getItem('ora-name')||'';
+  const lastname = localStorage.getItem('ora-lastname')||'';
+  const email = localStorage.getItem('ora-email')||'';
+  const phone = localStorage.getItem('ora-phone')||'';
+  const photo = localStorage.getItem('ora-photo');
+  const fullname = [name, lastname].filter(Boolean).join(' ');
+  const avatarEl = document.querySelector('.profile-avatar');
+  const nameEl = document.querySelector('.profile-name');
+  const emailEl = document.querySelector('.profile-email');
+  if(avatarEl){
+    if(photo) avatarEl.innerHTML = '<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="фото">';
+    else avatarEl.textContent = name ? name[0].toUpperCase() : '?';
+  }
+  if(nameEl) nameEl.textContent = fullname || 'Имя не указано';
+  if(emailEl) emailEl.textContent = phone ? '+7 '+phone : (email || 'Нажми чтобы заполнить');
+}
+
+recalc();
+updateProfileDisplay();
+
+
+
+// ===== ЦЕЛИ И ЛИМИТЫ =====
+let goals = [];
+let goalType = 'goal';
+let activeSavingsId = null;
+
+function showAddGoalType(type){
+  showAddGoal();
+  setGoalType(type);
+}
+
+function showAddGoal(){
+  document.getElementById('add-goal-modal').style.display = 'flex';
+  setGoalType('goal');
+  document.getElementById('goal-hint').textContent = '';
+  // Set min date to today
+  document.getElementById('goal-date').min = new Date().toISOString().split('T')[0];
+}
+
+function hideAddGoal(){
+  document.getElementById('add-goal-modal').style.display = 'none';
+  document.getElementById('goal-name').value = '';
+  document.getElementById('goal-amt').value = '';
+  document.getElementById('goal-monthly').value = '';
+  document.getElementById('goal-weekly').value = '';
+  document.getElementById('goal-date').value = '';
+  document.getElementById('goal-hint').textContent = '';
+  document.getElementById('limit-cat').value = '';
+  document.getElementById('limit-amt').value = '';
+}
+
+function setGoalType(type){
+  goalType = type;
+  const gb = document.getElementById('type-goal-btn');
+  const lb = document.getElementById('type-limit-btn');
+  if(type === 'goal'){
+    gb.style.background='var(--bg)'; gb.style.color='var(--ink)'; gb.style.fontWeight='600';
+    lb.style.background='transparent'; lb.style.color='var(--muted)'; lb.style.fontWeight='500';
+    document.getElementById('goal-fields').style.display='block';
+    document.getElementById('limit-fields').style.display='none';
+  } else {
+    lb.style.background='var(--bg)'; lb.style.color='var(--ink)'; lb.style.fontWeight='600';
+    gb.style.background='transparent'; gb.style.color='var(--muted)'; gb.style.fontWeight='500';
+    document.getElementById('goal-fields').style.display='none';
+    document.getElementById('limit-fields').style.display='block';
+    setLimitPeriod('day');
+  }
+}
+
+let goalPeriodType = 'week';
+
+function setPeriodType(type){
+  goalPeriodType = type;
+  const wb = document.getElementById('period-week-btn');
+  const mb = document.getElementById('period-month-btn');
+  const wf = document.getElementById('weekly-field');
+  const mf = document.getElementById('monthly-field');
+  const r3 = document.getElementById('reminder-3d-text');
+  const rw = document.getElementById('reminder-week-text');
+
+  if(type === 'week'){
+    wb.style.background='var(--bg)'; wb.style.color='var(--ink)'; wb.style.fontWeight='600';
+    mb.style.background='transparent'; mb.style.color='var(--muted)'; mb.style.fontWeight='500';
+    wf.style.display='block';
+    mf.style.display='none';
+    // Еженедельно: раз в 3 дня + раз в неделю (без "раз в месяц")
+    document.getElementById('reminder-3d-label').style.display='flex';
+    r3.textContent = 'Раз в 3 дня — пора откладывать';
+    rw.textContent = 'Раз в неделю — итог недели';
+    document.getElementById('reminder-month-label').style.display='none';
+    document.getElementById('goal-weekly').value='';
+  } else {
+    mb.style.background='var(--bg)'; mb.style.color='var(--ink)'; mb.style.fontWeight='600';
+    wb.style.background='transparent'; wb.style.color='var(--muted)'; wb.style.fontWeight='500';
+    mf.style.display='block';
+    wf.style.display='none';
+    // Ежемесячно: только раз в неделю + раз в месяц (без "раз в 3 дня")
+    document.getElementById('reminder-3d-label').style.display='none';
+    rw.textContent = 'Раз в неделю — как идёт накопление';
+    document.getElementById('reminder-month-label').style.display='flex';
+    document.getElementById('goal-monthly').value='';
+  }
+  // Сбросить выбор напоминания
+  document.querySelectorAll('input[name="reminder"]')[0].checked=true;
+  document.getElementById('goal-hint').textContent='';
+}
+
+function calcDeadline(){
+  const amt = parseFloat(document.getElementById('goal-amt').value)||0;
+  const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  let perMonth = 0;
+
+  if(goalPeriodType === 'week'){
+    const w = parseFloat(document.getElementById('goal-weekly').value)||0;
+    if(w > 0) perMonth = w * 4;
+  } else {
+    perMonth = parseFloat(document.getElementById('goal-monthly').value)||0;
+  }
+
+  if(amt > 0 && perMonth > 0){
+    const months = Math.ceil(amt / perMonth);
+    const date = new Date();
+    date.setMonth(date.getMonth() + months);
+    let hint = '→ Цель через ';
+    if(months < 1) hint += Math.ceil(amt/(perMonth/4)) + ' нед.';
+    else if(months < 12) hint += months + ' мес.';
+    else {
+      const yrs = Math.floor(months/12);
+      const rem = months % 12;
+      hint += yrs + ' г.' + (rem > 0 ? ' ' + rem + ' мес.' : '');
+    }
+    hint += ' — ' + date.getDate() + ' ' + ms[date.getMonth()] + ' ' + date.getFullYear();
+    document.getElementById('goal-hint').textContent = hint;
+    document.getElementById('goal-date').value = date.toISOString().split('T')[0];
+  } else {
+    document.getElementById('goal-hint').textContent = '';
+  }
+}
+
+function calcMonthly(){
+  const amt = parseFloat(document.getElementById('goal-amt').value)||0;
+  const dateVal = document.getElementById('goal-date').value;
+  if(amt>0 && dateVal){
+    const now = new Date();
+    const target = new Date(dateVal);
+    const months = Math.max(1, Math.round((target-now)/(1000*60*60*24*30)));
+    const monthly = Math.ceil(amt/months);
+    document.getElementById('goal-monthly').value = monthly;
+    document.getElementById('goal-hint').textContent =
+      '→ Нужно откладывать '+monthly.toLocaleString('ru-RU')+' ₽ в месяц';
+  }
+}
+
+function saveGoal(){
+  if(goalType === 'goal'){
+    const name = document.getElementById('goal-name').value.trim();
+    const amt = parseFloat(document.getElementById('goal-amt').value);
+    const weekly = parseFloat(document.getElementById('goal-weekly').value)||0;
+    const monthly = parseFloat(document.getElementById('goal-monthly').value)||0;
+    const deadline = document.getElementById('goal-date').value;
+    const reminder = document.querySelector('input[name="reminder"]:checked')?.value||'none';
+    const perMonth = goalPeriodType==='week' ? weekly*4 : monthly;
+    if(!name || !amt || amt<=0) return;
+    goals.push({id:Date.now()+'', name, amt, monthly:perMonth, weekly, periodType:goalPeriodType, deadline, reminder, type:'goal', saved:0, history:[]});
+  } else {
+    const cat = document.getElementById('limit-cat').value.trim();
+    const amt = parseFloat(document.getElementById('limit-amt').value);
+    if(!cat || !amt || amt<=0) return;
+    const reminders = [...document.querySelectorAll('input[name="lremind"]:checked')].map(el=>el.value);
+    goals.push({id:Date.now()+'', name:cat, amt, period:limitPeriodType, reminders, type:'limit', saved:0});
+  }
+  hideAddGoal();
+  renderGoals();
+  checkGoalNotifications();
+}
+
+function renderGoals(){
+  const gl = document.getElementById('goals-list');
+  const ll = document.getElementById('limits-list');
+  const goalItems = goals.filter(g=>g.type==='goal');
+  const limitItems = goals.filter(g=>g.type==='limit');
+
+  gl.innerHTML = goalItems.length ? goalItems.map(g=>{
+    const pct = Math.min(100, Math.round(g.saved/g.amt*100));
+    const left = g.amt - g.saved;
+    const barColor = pct>=100?'var(--gold)':pct>=75?'var(--success)':'var(--success)';
+    const daysLeft = g.deadline ? Math.max(0,Math.round((new Date(g.deadline)-new Date())/(1000*60*60*24))) : null;
+    const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+    const deadlineStr = g.deadline ? (() => { const d=new Date(g.deadline); return d.getDate()+' '+ms[d.getMonth()]+' '+d.getFullYear(); })() : '';
+    return `<div style="background:var(--secondary);border-radius:var(--radius);padding:16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:2px;">🎯 ${g.name}</div>
+          ${deadlineStr?`<div style="font-size:11px;color:var(--muted);">До ${deadlineStr}${daysLeft!==null?' · осталось '+daysLeft+' дн.':''}</div>`:''}
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:16px;font-weight:700;color:var(--ink);">${fmt(g.saved)}</div>
+          <div style="font-size:11px;color:var(--muted);">из ${fmt(g.amt)}</div>
+        </div>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;">
+        <div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;transition:width .4s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:12px;color:var(--muted);">${pct>=100?'🎉 Цель достигнута!':`Накоплено ${pct}% · осталось ${fmt(left)}`}</div>
+        ${pct<100?`<button onclick="openSavings('${g.id}')" style="background:var(--success-bg);color:var(--success);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Manrope',sans-serif;">+ Пополнить</button>`:''}
+      </div>
+      ${g.monthly?`<div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border);font-size:11px;color:var(--muted);">План: ${g.monthly.toLocaleString('ru-RU')} ₽/мес</div>`:''}
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:28px 16px;font-size:13px;color:var(--muted);">Нажми + чтобы добавить цель</div>';
+
+  ll.innerHTML = limitItems.length ? limitItems.map(g=>{
+    const spent = entries.filter(e=>e.type==='exp'&&e.cat===g.name).reduce((s,e)=>s+e.price*e.count,0);
+    const pct = Math.min(100, Math.round(spent/g.amt*100));
+    const color = pct>=90?'var(--danger)':pct>=70?'var(--gold)':'var(--success)';
+    const warn = pct>=90?'⚠️ Лимит почти исчерпан!':pct>=70?'Внимание — уже 70%':'';
+    return `<div style="background:var(--secondary);border-radius:var(--radius);padding:16px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:15px;font-weight:600;color:var(--ink);">🚫 ${g.name}</div>
+        <div style="text-align:right;">
+          <div style="font-size:15px;font-weight:700;color:${color};">${fmt(spent)}</div>
+          <div style="font-size:11px;color:var(--muted);">лимит ${fmt(g.amt)}</div>
+        </div>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px;">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:width .4s;"></div>
+      </div>
+      <div style="font-size:12px;color:${color};">${warn||`Потрачено ${pct}% · осталось ${fmt(Math.max(0,g.amt-spent))}`}</div>
+    </div>`;
+  }).join('') : '<div style="text-align:center;padding:20px 16px;font-size:13px;color:var(--muted);">Нажми + чтобы установить лимит</div>';
+}
+
+function openSavings(id){
+  activeSavingsId = id;
+  const g = goals.find(g=>g.id===id);
+  document.getElementById('savings-goal-name').textContent = '+ Пополнить: '+g.name;
+  document.getElementById('savings-amt').value = g.monthly||'';
+  document.getElementById('add-savings-modal').style.display = 'flex';
+}
+
+function hideSavings(){
+  document.getElementById('add-savings-modal').style.display = 'none';
+  document.getElementById('savings-amt').value = '';
+  activeSavingsId = null;
+}
+
+function addSavings(){
+  const amt = parseFloat(document.getElementById('savings-amt').value);
+  if(!amt||amt<=0||!activeSavingsId) return;
+  const g = goals.find(g=>g.id===activeSavingsId);
+  if(!g) return;
+  g.saved = Math.min(g.amt, g.saved+amt);
+  g.history = g.history||[];
+  g.history.push({date:today(), amt});
+  hideSavings();
+  renderGoals();
+  checkGoalNotifications();
+}
+
+function checkGoalNotifications(){
+  goals.forEach(g=>{
+    if(g.type==='goal'){
+      const pct = Math.round(g.saved/g.amt*100);
+      if(pct>=100 && Notification.permission==='granted'){
+        new Notification('Ora 🎉', {body: 'Цель "'+g.name+'" достигнута! Поздравляем!'});
+      } else if(pct>=75 && pct<100 && Notification.permission==='granted'){
+        new Notification('Ora 🎯', {body: 'Цель "'+g.name+'" — уже '+pct+'%! Осталось совсем чуть-чуть.'});
+      }
+    }
+    if(g.type==='limit'){
+      const spent = entries.filter(e=>e.type==='exp'&&e.cat===g.name).reduce((s,e)=>s+e.price*e.count,0);
+      const pct = Math.round(spent/g.amt*100);
+      if(pct>=90 && Notification.permission==='granted'){
+        new Notification('Ora ⚠️', {body: 'Лимит по "'+g.name+'" почти исчерпан — уже '+pct+'%'});
+      }
+    }
+  });
+}
+
+
+// ===== БИЗНЕС ДАШБОРД =====
+function renderBizDash(){
+  const inc = bEntries.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0);
+  const exp = bEntries.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0);
+  const p = inc - exp;
+
+  // Итог месяца
+  const itog = document.getElementById('biz-itog');
+  const iv = document.getElementById('biz-itog-val');
+  const ie = document.getElementById('biz-itog-emoji');
+  if(p>0){ itog.style.background='var(--success-bg)'; iv.style.color='var(--success)'; iv.textContent='+'+fmt(p); ie.textContent='😊'; }
+  else if(p<0){ itog.style.background='var(--danger-bg)'; iv.style.color='var(--danger)'; iv.textContent='−'+fmt(p); ie.textContent='⚠️'; }
+  else { itog.style.background='var(--secondary)'; iv.style.color='var(--muted)'; iv.textContent='0 ₽'; ie.textContent=''; }
+
+  // Доходы по категориям
+  const byInc={};
+  bEntries.filter(e=>e.type==='inc').forEach(e=>{
+    if(!byInc[e.cat])byInc[e.cat]={icon:e.icon,total:0};
+    byInc[e.cat].total+=e.price*e.count;
+  });
+  const sortedInc=Object.entries(byInc).sort((a,b)=>b[1].total-a[1].total);
+  const maxI=Math.max(...sortedInc.map(([,v])=>v.total),1);
+  const ti=document.getElementById('biz-top-inc');
+  ti.innerHTML=sortedInc.length?sortedInc.map(([cat,v])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="goBusinessSec('inc')">
+      <div style="width:28px;height:28px;border-radius:8px;background:${CAT_COLORS[v.icon]||'#22A35A'}22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${v.icon}</div>
+      <div style="flex:1;font-size:12px;color:var(--muted);">${cat}</div>
+      <div style="width:56px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.round(v.total/maxI*100)}%;background:var(--success);border-radius:2px;"></div></div>
+      <div style="font-size:12px;font-weight:600;color:var(--success);min-width:60px;text-align:right;">+${fmt(v.total)}</div>
+    </div>
+  `).join(''):'<div style="font-size:13px;color:var(--muted);padding:4px 0;">Нет данных</div>';
+
+  // Расходы по категориям
+  const byCat={};
+  bEntries.filter(e=>e.type==='exp').forEach(e=>{
+    if(!byCat[e.cat])byCat[e.cat]={icon:e.icon,total:0};
+    byCat[e.cat].total+=e.price*e.count;
+  });
+  const sorted=Object.entries(byCat).sort((a,b)=>b[1].total-a[1].total);
+  const maxC=Math.max(...sorted.map(([,v])=>v.total),1);
+  const tc=document.getElementById('biz-top-cats');
+  tc.innerHTML=sorted.length?sorted.map(([cat,v])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="goBusinessSec('exp')">
+      <div style="width:28px;height:28px;border-radius:8px;background:${CAT_COLORS[v.icon]||'#888'}22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">${v.icon}</div>
+      <div style="flex:1;font-size:12px;color:var(--muted);">${cat}</div>
+      <div style="width:56px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.round(v.total/maxC*100)}%;background:${CAT_COLORS[v.icon]||'#888'};border-radius:2px;"></div></div>
+      <div style="font-size:12px;font-weight:600;color:var(--danger);min-width:60px;text-align:right;">−${fmt(v.total)}</div>
+    </div>
+  `).join(''):'<div style="font-size:13px;color:var(--muted);padding:4px 0;">Нет данных</div>';
+}
+
+function openQuickRevenue(){
+  const now = new Date();
+  const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  document.getElementById('qr-date').textContent = now.getDate()+' '+ms[now.getMonth()]+' '+now.getFullYear();
+  document.getElementById('qr-amt').value='';
+  document.getElementById('quick-revenue-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('qr-amt').focus(),100);
+}
+
+function closeQuickRevenue(){
+  document.getElementById('quick-revenue-modal').style.display='none';
+}
+
+function saveQuickRevenue(){
+  const amt = parseFloat(document.getElementById('qr-amt').value);
+  if(!amt||amt<=0) return;
+  bEntries.push({
+    id:Date.now()+''+Math.random(),
+    name:'Выручка за смену',
+    price:amt, count:1,
+    type:'inc',
+    cat:'Выручка',
+    sub:'Продажи за день',
+    icon:'💰',
+    date:today(),
+    time:new Date().getHours()+':'+String(new Date().getMinutes()).padStart(2,'0')
+  });
+  closeQuickRevenue();
+  bRecalc();
+  renderBizDash();
+  document.getElementById('b-inc').textContent='+'+fmt(bEntries.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+}
+
+
+// ===== БИЗНЕС ВКЛАДКИ =====
+let bizTab = 'home';
+let bizPeriod = 'day';
+let bizDate = new Date();
+bizDate.setHours(12,0,0,0);
+
+function setBizTab(tab){
+  bizTab = tab;
+  ['home','reports','history'].forEach(t=>{
+    const btn = document.getElementById('biz-tab-'+t);
+    const panel = document.getElementById('biz-panel-'+t);
+    if(btn){
+      btn.style.color = t===tab ? 'var(--gold)' : 'var(--muted)';
+      btn.style.fontWeight = t===tab ? '600' : '500';
+      btn.style.borderBottom = t===tab ? '2px solid var(--gold)' : '2px solid transparent';
+    }
+    if(panel){
+      if(t==='history'){
+        panel.style.display = t===tab ? 'flex' : 'none';
+        panel.style.flexDirection = 'column';
+      } else {
+        panel.style.display = t===tab ? 'block' : 'none';
+      }
+    }
+  });
+  if(tab==='reports') renderBizReports();
+  if(tab==='history') renderBizHist();
+}
+
+function setBizPeriod(p, btn){
+  bizPeriod = p;
+  bizDate = new Date();
+  document.querySelectorAll('#biz-panel-reports .pt').forEach(b=>{
+    b.style.background='transparent'; b.style.color='var(--muted)'; b.style.fontWeight='500';
+  });
+  btn.style.background='var(--bg)'; btn.style.color='var(--ink)'; btn.style.fontWeight='600';
+  renderBizReports();
+}
+
+function navBizPeriod(d){
+  const nd = new Date(bizDate);
+  if(bizPeriod==='day') nd.setDate(nd.getDate()+d);
+  else if(bizPeriod==='week') nd.setDate(nd.getDate()+d*7);
+  else nd.setMonth(nd.getMonth()+d);
+  const now = new Date();
+  if(nd > now && d > 0) return;
+  bizDate = nd;
+  renderBizReports();
+}
+
+function renderBizReports(){
+  // Метка периода
+  const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  const days=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const now = new Date();
+  let lbl = '';
+  if(bizPeriod==='day'){
+    lbl = bizDate.toDateString()===now.toDateString() ? 'Сегодня, '+bizDate.getDate()+' '+ms[bizDate.getMonth()] :
+          days[bizDate.getDay()]+', '+bizDate.getDate()+' '+ms[bizDate.getMonth()]+' '+bizDate.getFullYear();
+  } else if(bizPeriod==='week'){
+    const mon=new Date(bizDate); mon.setDate(bizDate.getDate()-((bizDate.getDay()+6)%7));
+    const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+    lbl=mon.getDate()+' '+ms[mon.getMonth()]+' – '+sun.getDate()+' '+ms[sun.getMonth()]+' '+bizDate.getFullYear();
+  } else {
+    const mNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    lbl=mNames[bizDate.getMonth()]+' '+bizDate.getFullYear();
+  }
+  document.getElementById('biz-p-lbl').textContent=lbl;
+
+  // Фильтр данных
+  let list=[];
+  const ds=bizDate.toISOString().split('T')[0];
+  if(bizPeriod==='day'){
+    const localDs=bizDate.getFullYear()+'-'+String(bizDate.getMonth()+1).padStart(2,'0')+'-'+String(bizDate.getDate()).padStart(2,'0');
+    list=bEntries.filter(e=>e.date===localDs);
+  } else if(bizPeriod==='week'){
+    const mon=new Date(bizDate); mon.setDate(bizDate.getDate()-((bizDate.getDay()+6)%7)); mon.setHours(0,0,0,0);
+    const sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    list=bEntries.filter(e=>{ const ed=new Date(e.date+'T00:00:00'); return ed>=mon&&ed<=sun; });
+  } else {
+    list=bEntries.filter(e=>{ const ed=new Date(e.date+'T00:00:00'); return ed.getMonth()===bizDate.getMonth()&&ed.getFullYear()===bizDate.getFullYear(); });
+  }
+
+  const inc=list.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0);
+  const exp=list.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0);
+  const p=inc-exp;
+
+  // Баннер
+  const rb=document.getElementById('biz-rep-banner');
+  const rv=document.getElementById('biz-rb-val');
+  if(p>0){rb.style.background='var(--success-bg)';rv.style.color='var(--success)';rv.textContent='+'+fmt(p);}
+  else if(p<0){rb.style.background='var(--danger-bg)';rv.style.color='var(--danger)';rv.textContent='−'+fmt(Math.abs(p));}
+  else{rb.style.background='var(--secondary)';rv.style.color='var(--muted)';rv.textContent='0 ₽';}
+  document.getElementById('biz-rb-i').textContent='+'+fmt(inc);
+  document.getElementById('biz-rb-e').textContent='−'+fmt(exp);
+
+  // Бары
+  const bl={day:'По часам',week:'По дням',month:'По неделям'};
+  document.getElementById('biz-bar-lbl').textContent=bl[bizPeriod];
+  let barLbls=[],barExp=[],barInc=[];
+  if(bizPeriod==='day'){
+    for(let h=0;h<=22;h+=2){
+      barLbls.push(h===0?'00':h+'');
+      const r=list.filter(e=>{ const hr=parseInt((e.time||'12:00').split(':')[0]); return hr>=h&&hr<h+2; });
+      barExp.push(r.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0));
+      barInc.push(r.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+    }
+  } else if(bizPeriod==='week'){
+    const dn=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    const mon=new Date(bizDate); mon.setDate(bizDate.getDate()-((bizDate.getDay()+6)%7)); mon.setHours(0,0,0,0);
+    for(let i=0;i<7;i++){
+      const d=new Date(mon); d.setDate(mon.getDate()+i);
+      const dds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      const de=list.filter(e=>e.date===dds);
+      barLbls.push(dn[i]);
+      barExp.push(de.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0));
+      barInc.push(de.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+    }
+  } else {
+    const dim=new Date(bizDate.getFullYear(),bizDate.getMonth()+1,0).getDate();
+    const wks=Math.ceil(dim/7);
+    for(let w=0;w<wks;w++){
+      const from=w*7+1,to=Math.min((w+1)*7,dim);
+      barLbls.push(from+'–'+to);
+      const we=list.filter(e=>{ const d=parseInt(e.date.split('-')[2]); return d>=from&&d<=to; });
+      barExp.push(we.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0));
+      barInc.push(we.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0));
+    }
+  }
+  const maxV=Math.max(...barExp,...barInc,1);
+  document.getElementById('biz-rep-bars').innerHTML=barLbls.map((l,i)=>{
+    const MAX_H = 48;
+    const eH = barExp[i]>0 ? Math.max(Math.round(barExp[i]/maxV*MAX_H),4) : 0;
+    const iH = barInc[i]>0 ? Math.max(Math.round(barInc[i]/maxV*MAX_H),4) : 0;
+    const hasData = barExp[i]>0 || barInc[i]>0;
+    return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+      <div style="display:flex;align-items:flex-end;gap:1px;height:${MAX_H}px;width:100%;justify-content:center;">
+        ${iH>0?`<div style="flex:1;height:${iH}px;background:#1D9E75;opacity:.7;border-radius:3px 3px 0 0;"></div>`:`<div style="flex:1;"></div>`}
+        ${eH>0?`<div style="flex:1;height:${eH}px;background:#D94F3D;opacity:.6;border-radius:3px 3px 0 0;"></div>`:`<div style="flex:1;"></div>`}
+      </div>
+      <div style="font-size:8px;color:var(--muted);margin-top:3px;">${l}</div>
+    </div>`;
+  }).join('');
+
+  // Категории
+  const byInc2={};
+  list.filter(e=>e.type==='inc').forEach(e=>{ if(!byInc2[e.cat])byInc2[e.cat]={icon:e.icon,total:0}; byInc2[e.cat].total+=e.price*e.count; });
+  const siInc=Object.entries(byInc2).sort((a,b)=>b[1].total-a[1].total);
+  const maxI2=Math.max(...siInc.map(([,v])=>v.total),1);
+  document.getElementById('biz-rep-inc').innerHTML=siInc.length?siInc.map(([cat,v])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border);">
+      <div style="width:26px;height:26px;border-radius:7px;background:#22A35A22;display:flex;align-items:center;justify-content:center;font-size:13px;">${v.icon}</div>
+      <div style="flex:1;font-size:12px;color:var(--muted);">${cat}</div>
+      <div style="width:50px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.round(v.total/maxI2*100)}%;background:var(--success);border-radius:2px;"></div></div>
+      <div style="font-size:12px;font-weight:600;color:var(--success);min-width:56px;text-align:right;">+${fmt(v.total)}</div>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--muted);padding:4px 0;">Нет данных</div>';
+
+  const byExp2={};
+  list.filter(e=>e.type==='exp').forEach(e=>{ if(!byExp2[e.cat])byExp2[e.cat]={icon:e.icon,total:0}; byExp2[e.cat].total+=e.price*e.count; });
+  const siExp=Object.entries(byExp2).sort((a,b)=>b[1].total-a[1].total);
+  const maxE2=Math.max(...siExp.map(([,v])=>v.total),1);
+  document.getElementById('biz-rep-exp').innerHTML=siExp.length?siExp.map(([cat,v])=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border);">
+      <div style="width:26px;height:26px;border-radius:7px;background:${CAT_COLORS[v.icon]||'#888'}22;display:flex;align-items:center;justify-content:center;font-size:13px;">${v.icon}</div>
+      <div style="flex:1;font-size:12px;color:var(--muted);">${cat}</div>
+      <div style="width:50px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.round(v.total/maxE2*100)}%;background:${CAT_COLORS[v.icon]||'#888'};border-radius:2px;"></div></div>
+      <div style="font-size:12px;font-weight:600;color:var(--danger);min-width:56px;text-align:right;">−${fmt(v.total)}</div>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--muted);padding:4px 0;">Нет данных</div>';
+}
+
+function goToBizEntry(type, cat, sub, icon){
+  // Переходим в бизнес-категорию из истории
+  bCurType = type;
+  const catList = BCATS[type];
+  const ci = catList.findIndex(c=>c.n===cat);
+  if(ci === -1) return;
+  const si = catList[ci].s.indexOf(sub);
+  if(si === -1) return;
+  goBEntry(ci, si);
+}
+
+function renderBizHist(){
+  const dateVal = document.getElementById('biz-date-input').value;
+  const nameVal = document.getElementById('biz-name-search').value.toLowerCase();
+  let list = [...bEntries];
+  if(dateVal) list=list.filter(e=>e.date===dateVal);
+  if(nameVal) list=list.filter(e=>e.name.toLowerCase().includes(nameVal));
+
+  const summary = document.getElementById('biz-hist-summary');
+  const results = document.getElementById('biz-hist-results');
+
+  if(!list.length){
+    results.innerHTML='<div style="text-align:center;padding:40px 16px;font-size:13px;color:var(--muted);">'+(dateVal||nameVal?'Ничего не найдено':'Выбери дату или введи название')+'</div>';
+    summary.style.display='none'; return;
+  }
+
+  const inc=list.filter(e=>e.type==='inc').reduce((s,e)=>s+e.price*e.count,0);
+  const exp=list.filter(e=>e.type==='exp').reduce((s,e)=>s+e.price*e.count,0);
+  summary.style.display='flex';
+  document.getElementById('biz-hist-label').textContent=list.length+' '+(list.length===1?'запись':list.length<5?'записи':'записей');
+  document.getElementById('biz-hist-inc').textContent='+'+fmt(inc);
+  document.getElementById('biz-hist-exp').textContent='−'+fmt(exp);
+
+  const byDate={};
+  list.forEach(e=>{ if(!byDate[e.date])byDate[e.date]=[]; byDate[e.date].push(e); });
+  const ms=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  results.innerHTML=Object.keys(byDate).sort((a,b)=>b.localeCompare(a)).map(date=>{
+    const d=new Date(date+'T00:00:00');
+    const lbl=d.getDate()+' '+ms[d.getMonth()]+' '+d.getFullYear();
+    return`<div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 16px;background:var(--secondary);">${lbl}</div>
+    ${byDate[date].map(e=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="goToBizEntry('${e.type}','${e.cat}','${e.sub}','${e.icon}')">
+        <div style="width:32px;height:32px;border-radius:9px;background:${CAT_COLORS[e.icon]||'#888'}22;display:flex;align-items:center;justify-content:center;font-size:15px;">${e.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
+          <div style="font-size:11px;color:var(--muted);">${e.cat} · ${e.sub} <span style="font-size:10px;color:var(--muted);">— нажми чтобы открыть</span></div>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:${e.type==='exp'?'var(--danger)':'var(--success)'};">${e.type==='exp'?'−':'+'}${fmt(e.price*e.count)}</div>
+      </div>`).join('')}`;
+  }).join('');
+}
+
+// ===== ЛИМИТ =====
+let limitPeriodType = 'day';
+
+function setLimitPeriod(type){
+  limitPeriodType = type;
+  const db = document.getElementById('lp-day-btn');
+  const wb = document.getElementById('lp-week-btn');
+  const mb = document.getElementById('lp-month-btn');
+  const lbl = document.getElementById('limit-amt-label');
+  const inp = document.getElementById('limit-amt');
+
+  // reset all
+  [db,wb,mb].forEach(b=>{ b.style.background='transparent'; b.style.color='var(--muted)'; b.style.fontWeight='500'; });
+
+  if(type==='day'){
+    db.style.background='var(--bg)'; db.style.color='var(--ink)'; db.style.fontWeight='600';
+    lbl.textContent='Лимит в день ₽';
+    inp.placeholder='1 000';
+    inp.value='';
+    // для дня показываем "каждый день" напоминание
+    document.querySelectorAll('input[name="lremind"]').forEach(el=>el.checked=false);
+  } else if(type==='week'){
+    wb.style.background='var(--bg)'; wb.style.color='var(--ink)'; wb.style.fontWeight='600';
+    lbl.textContent='Лимит в неделю ₽';
+    inp.placeholder='5 000';
+    inp.value='';
+  } else {
+    mb.style.background='var(--bg)'; mb.style.color='var(--ink)'; mb.style.fontWeight='600';
+    lbl.textContent='Лимит в месяц ₽';
+    inp.placeholder='15 000';
+    inp.value='';
+  }
+}
+
+function toggleNoRemind(cb){
+  if(cb.checked){
+    document.querySelectorAll('input[name="lremind"]').forEach(el=>{
+      if(el.value!=='none') el.checked=false;
+    });
+  }
+}
+
+// Снять "без напоминаний" если выбрали другое
+document.addEventListener('change', function(e){
+  if(e.target.name==='lremind' && e.target.value!=='none' && e.target.checked){
+    document.getElementById('lr-none').checked=false;
+  }
+});
+
+// ===== БИЗНЕС =====
+const BCATS = {
+  exp: [
+    {n:'Аренда',i:'🏢',bg:'#EAF3FD',s:['Помещение','Склад','Оборудование в аренду']},
+    {n:'Персонал',i:'👥',bg:'#EDF7F0',s:['Зарплата кассиру','Зарплата официанту','Зарплата повару','Зарплата уборщику','Зарплата охраннику','Другой сотрудник']},
+    {n:'Закупка',i:'📦',bg:'#FEF3E2',s:['Продукты и товары','Сырьё','Упаковка','Расходники']},
+    {n:'Коммунальные',i:'💡',bg:'#FFF3E8',s:['Электричество','Вода','Газ','Интернет','Телефония']},
+    {n:'Реклама',i:'📢',bg:'#F3EEFE',s:['Соцсети','Вывеска','Печать','Другое']},
+    {n:'Налоги',i:'📋',bg:'#FEF0F0',s:['НДС','Страховые взносы','Патент','Другие налоги']},
+    {n:'Оборудование',i:'🔧',bg:'#EEF6FF',s:['Техника','Мебель','Инвентарь','Ремонт']},
+    {n:'Другое',i:'➕',bg:'#F3F3F3',s:['Своя категория']},
+  ],
+  inc: [
+    {n:'Выручка',i:'💰',bg:'#EDF7F0',s:['Продажи за день','Онлайн-продажи','Доставка']},
+    {n:'Услуги',i:'🤝',bg:'#EEF6FF',s:['Услуги клиентам','Консультации','Другие услуги']},
+    {n:'Другое',i:'➕',bg:'#F3F3F3',s:['Субсидия','Возврат','Своя категория']},
+  ]
+};
+
+let bCurType = 'exp', bOpenCatEl = null;
+let bEntries = [];
+
+function renderBizCats(){
+  // Перерисовываем категории при возврате
+  goBusinessSec(bCurType);
+}
+
+function goBusinessSec(type){
+  bCurType = type;
+  bOpenCatEl = null;
+  document.getElementById('bcats-title').textContent = type==='exp' ? 'Расходы бизнеса' : 'Выручка';
+  const tot = bEntries.filter(e=>e.type===type).reduce((s,e)=>s+e.price*e.count,0);
+  const ct = document.getElementById('bcats-total');
+  ct.textContent = tot>0?(type==='exp'?'−':'+')+fmt(tot):'';
+  ct.style.color = type==='exp'?'var(--danger)':'var(--success)';
+  const list = BCATS[type];
+  document.getElementById('bcat-scroll').innerHTML = list.map((cat,ci)=>`
+    <div>
+      <div class="cat-parent" id="bcp-${ci}" onclick="bToggleCat(this,${ci})">
+        <div class="cp-ico" style="background:${cat.bg}">${cat.i}</div>
+        <div class="cp-name">${cat.n}</div>
+        <div class="cp-amt" id="bca-${ci}"></div>
+        <div class="cp-arr">›</div>
+      </div>
+      <div class="sub-list" id="bsl-${ci}">
+        ${cat.s.map((sub,si)=>`
+          <div class="sub-item" onclick="goBEntry(${ci},${si})">
+            <div class="si-dot"></div>
+            <div class="si-name">${sub}</div>
+            <div class="si-amt" id="bsa-${ci}-${si}"></div>
+            <button class="si-btn ${type==='exp'?'e':'i'}" onclick="event.stopPropagation();goBEntry(${ci},${si})">+ добавить</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  bUpdAmts();
+  navTo('s-bcats', null);
+}
+
+function bUpdAmts(){
+  BCATS[bCurType].forEach((cat,ci)=>{
+    let tot=0;
+    cat.s.forEach((sub,si)=>{
+      const s=bEntries.filter(e=>e.type===bCurType&&e.cat===cat.n&&e.sub===sub).reduce((a,e)=>a+e.price*e.count,0);
+      const el=document.getElementById('bsa-'+ci+'-'+si);
+      if(el)el.textContent=s>0?(bCurType==='exp'?'−':'+')+fmt(s):'';
+      tot+=s;
+    });
+    const ce=document.getElementById('bca-'+ci);
+    if(ce)ce.textContent=tot>0?(bCurType==='exp'?'−':'+')+fmt(tot):'';
+  });
+  // Обновляем итоговую сумму в шапке категорий
+  const tot=bEntries.filter(e=>e.type===bCurType).reduce((s,e)=>s+e.price*e.count,0);
+  const ct=document.getElementById('bcats-total');
+  if(ct){ ct.textContent=tot>0?(bCurType==='exp'?'−':'+')+fmt(tot):''; ct.style.color=bCurType==='exp'?'var(--danger)':'var(--success)'; }
+}
+
+function bToggleCat(el,ci){
+  if(bOpenCatEl&&bOpenCatEl!==el){bOpenCatEl.classList.remove('open');bOpenCatEl.nextElementSibling.classList.remove('open');}
+  el.classList.toggle('open');
+  document.getElementById('bsl-'+ci).classList.toggle('open');
+  bOpenCatEl=el.classList.contains('open')?el:null;
+}
+
+function goBEntry(ci,si){
+  const cat=BCATS[bCurType][ci];
+  curCat=cat.n; curSub=cat.s[si]; curIcon=cat.i;
+  curType=bCurType;
+  document.getElementById('biz-ent-icon').textContent=cat.i;
+  document.getElementById('biz-ent-name').textContent=cat.n;
+  document.getElementById('biz-ent-sub').textContent=curSub;
+  document.getElementById('biz-ar-plus').className='ar-plus '+(bCurType==='exp'?'exp':'inc');
+  renderBizEntries();
+  navTo('s-biz-entry', null);
+  setTimeout(()=>document.getElementById('biz-ar-name').focus(),100);
+}
+
+function renderBizEntries(){
+  const list=bEntries.filter(e=>e.type===curType&&e.cat===curCat&&e.sub===curSub);
+  const el=document.getElementById('biz-entry-scroll');
+  el.innerHTML=list.length?list.map(e=>`
+    <div class="entry-row">
+      <div class="er-info">
+        <div class="er-name">${e.name}</div>
+        <div class="er-price">${fmt(e.price)} / раз</div>
+      </div>
+      <div class="counter">
+        <button class="cnt-btn m" onclick="bizDec('${e.id}')">−</button>
+        <div class="cnt-num">${e.count}</div>
+        <button class="cnt-btn p" onclick="bizInc('${e.id}')">+</button>
+      </div>
+      <div class="er-total">
+        <div class="er-amt ${curType}">${curType==='exp'?'−':'+'}${fmt(e.price*e.count)}</div>
+        <button class="er-del" onclick="bizDelEntry('${e.id}')">×</button>
+      </div>
+    </div>
+  `).join(''):'';
+  const tot=list.reduce((s,e)=>s+e.price*e.count,0);
+  const tv=document.getElementById('biz-ent-total');
+  tv.textContent=(curType==='exp'?'−':'+ ')+fmt(tot);
+  tv.className='total-val '+(curType==='exp'?'exp':'inc');
+}
+
+function bizInc(id){const e=bEntries.find(e=>e.id===id);if(e){e.count++;renderBizEntries();bRecalc();bUpdAmts();renderBizDash();}}
+function bizDec(id){
+  const e=bEntries.find(e=>e.id===id);if(!e)return;
+  e.count--;
+  if(e.count<=0)bEntries=bEntries.filter(e=>e.id!==id);
+  renderBizEntries();bRecalc();bUpdAmts();renderBizDash();
+}
+function bizDelEntry(id){bEntries=bEntries.filter(e=>e.id!==id);renderBizEntries();bRecalc();bUpdAmts();renderBizDash();}
+
+function addBizEntry(){
+  const name=document.getElementById('biz-ar-name').value.trim();
+  const price=parseFloat(document.getElementById('biz-ar-amt').value);
+  if(!name||!price||price<=0)return;
+  const ex=bEntries.find(e=>e.type===curType&&e.cat===curCat&&e.sub===curSub&&e.name===name);
+  if(ex){ex.count++;}
+  else{bEntries.push({id:Date.now()+''+ Math.random(),name,price,count:1,type:curType,cat:curCat,sub:curSub,icon:curIcon,date:today()});}
+  document.getElementById('biz-ar-name').value='';
+  document.getElementById('biz-ar-amt').value='';
+  document.getElementById('biz-ar-name').focus();
+  renderBizEntries();bRecalc();bUpdAmts();renderBizDash();
+}
+
+function bRecalc(){
+  const inc=bEntries.reduce((s,e)=>e.type==='inc'?s+e.price*e.count:s,0);
+  const exp=bEntries.reduce((s,e)=>e.type==='exp'?s+e.price*e.count:s,0);
+  const p=inc-exp;
+
+  // Обновляем шапку бизнес-экрана
+  const bi=document.getElementById('b-inc');
+  const be=document.getElementById('b-exp');
+  const bp=document.getElementById('b-profit');
+  if(bi) bi.textContent='+'+fmt(inc);
+  if(be) be.textContent='−'+fmt(exp);
+  if(bp){ bp.textContent=(p>=0?'+':'−')+fmt(p); bp.style.color=p<0?'white':'white'; }
+
+  // Обновляем итог месяца на бизнес-экране
+  const itog=document.getElementById('biz-itog');
+  const iv=document.getElementById('biz-itog-val');
+  const ie=document.getElementById('biz-itog-emoji');
+  if(itog&&iv&&ie){
+    if(p>0){itog.style.background='var(--success-bg)';iv.style.color='var(--success)';iv.textContent='+'+fmt(p);ie.textContent='😊';}
+    else if(p<0){itog.style.background='var(--danger-bg)';iv.style.color='var(--danger)';iv.textContent='−'+fmt(Math.abs(p));ie.textContent='⚠️';}
+    else{itog.style.background='var(--secondary)';iv.style.color='var(--muted)';iv.textContent='0 ₽';ie.textContent='';}
+  }
+}
+
+// ===== ПОДПИСКА =====
+let selectedPlan = 'year';
+
+function selectPlan(plan){
+  selectedPlan = plan;
+  const rm = document.getElementById('radio-month');
+  const ry = document.getElementById('radio-year');
+  const pm = document.getElementById('plan-month');
+  const py = document.getElementById('plan-year');
+  if(plan === 'year'){
+    ry.style.background = 'var(--gold)';
+    ry.style.border = '2px solid var(--gold)';
+    ry.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:white;"></div>';
+    rm.style.background = 'transparent';
+    rm.style.border = '2px solid var(--border)';
+    rm.innerHTML = '';
+    py.style.background = 'var(--gold-pale)';
+    pm.style.background = 'transparent';
+  } else {
+    rm.style.background = 'var(--gold)';
+    rm.style.border = '2px solid var(--gold)';
+    rm.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:white;"></div>';
+    ry.style.background = 'transparent';
+    ry.style.border = '2px solid var(--border)';
+    ry.innerHTML = '';
+    pm.style.background = 'var(--gold-pale)';
+    py.style.background = 'transparent';
+  }
+}
+
+function subscribePlan(){
+  const price = selectedPlan === 'year' ? '999 ₽/год' : '99 ₽/месяц';
+  alert('Оформление подписки: ' + price + '\nЗдесь будет подключена оплата');
+}
+
+// Установить годовой по умолчанию
+selectPlan('year');
+</script>
+</body>
+</html>
